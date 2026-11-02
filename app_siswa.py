@@ -90,41 +90,88 @@ class SiswaApp(tk.Tk):
             self.mapel_info = f"{data_resp['mapel']} (Kelas {data_resp['kelas']})"
             
             self.frame_login.pack_forget()
-            self.frame_ujian.pack(fill='both', expand=True, padx=40, pady=40)
+            self.frame_ujian.pack(fill='both', expand=True, padx=40, pady=20)
             self.tampilkan_soal()
             
         except Exception as e:
             messagebox.showerror("Koneksi Gagal", f"Tidak bisa terhubung ke server.\nPastikan IP benar.\nDetail: {e}", parent=self)
 
     def tampilkan_soal(self):
-        for widget in self.frame_ujian.winfo_children(): widget.destroy()
+        # Bersihkan frame ujian
+        for widget in self.frame_ujian.winfo_children(): 
+            widget.destroy()
             
         soal = self.soal_data[self.current_idx]
         sid = str(soal['id'])
         
+        # 1. HEADER (TETAP DI ATAS)
         header = tk.Frame(self.frame_ujian)
-        header.pack(fill='x', pady=5)
+        header.pack(side='top', fill='x', pady=5)
         tk.Label(header, text=f"Peserta: {self.nama_siswa} | Mapel: {self.mapel_info}", font=("Arial", 14, "bold"), fg="blue").pack(side='left')
         tk.Label(header, text=f"Soal {self.current_idx + 1} / {len(self.soal_data)}", font=("Arial", 14, "bold")).pack(side='right')
         
-        tk.Label(self.frame_ujian, text=soal['soal'], font=("Arial", 16), wraplength=1000, justify='left').pack(anchor='w', pady=15)
+        # 2. FOOTER TOMBOL (TETAP DI BAWAH)
+        footer = tk.Frame(self.frame_ujian)
+        footer.pack(side='bottom', fill='x', pady=10)
+        
+        if self.current_idx > 0: 
+            tk.Button(footer, text="<< Sebelumnya", command=self.simpan_dan_mundur, font=("Arial", 14), width=15).pack(side='left')
+        
+        if self.current_idx < len(self.soal_data) - 1: 
+            tk.Button(footer, text="Selanjutnya >>", command=self.simpan_dan_maju, font=("Arial", 14), bg="lightblue", width=15).pack(side='right')
+        else: 
+            tk.Button(footer, text="Selesai & Kirim", command=self.selesai, font=("Arial", 14, "bold"), bg="red", fg="white", width=20).pack(side='right')
+
+        # 3. AREA TENGAH BISA DI-SCROLL (Soal & Opsi Jawaban)
+        container_scroll = tk.Frame(self.frame_ujian)
+        container_scroll.pack(side='top', fill='both', expand=True, pady=10)
+
+        # Buat Canvas dan Scrollbar
+        canvas = tk.Canvas(container_scroll, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(container_scroll, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas)
+
+        # Konfigurasi Scrollable Area
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        
+        # Agar frame di dalam canvas selalu selebar layar
+        def on_canvas_configure(event):
+            canvas.itemconfig(canvas_window, width=event.width)
+        canvas.bind('<Configure>', on_canvas_configure)
+        
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Menambahkan fitur scroll menggunakan scroll-wheel Mouse (Mouse Tengah)
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+
+        # ---------------- INPUT KONTEN SOAL KE DALAM FRAME SCROLL ----------------
+        tk.Label(scrollable_frame, text=soal['soal'], font=("Arial", 16), wraplength=1000, justify='left').pack(anchor='w', pady=15)
         
         if soal.get('gambar'):
             try:
                 img_data = base64.b64decode(soal['gambar'])
                 image = Image.open(io.BytesIO(img_data))
-                self.img_ref = ImageTk.PhotoImage(image)
-                tk.Label(self.frame_ujian, image=self.img_ref).pack(anchor='w', pady=5)
+                self.img_ref = ImageTk.PhotoImage(image) # Simpan referensi agar tidak terhapus memory
+                tk.Label(scrollable_frame, image=self.img_ref).pack(anchor='w', pady=5)
             except: pass
                 
-        frame_jwb = tk.Frame(self.frame_ujian)
+        frame_jwb = tk.Frame(scrollable_frame)
         frame_jwb.pack(fill='both', expand=True, pady=10)
         self.input_vars = []
         
+        # Menampilkan Opsi Jawaban
         if soal['tipe'] == 'PG':
             var_pg = tk.StringVar(value=self.jawaban_siswa.get(sid, ""))
             for opsi_key, opsi_teks in soal['opsi'].items():
-                tk.Radiobutton(frame_jwb, text=f"{opsi_key}. {opsi_teks}", variable=var_pg, value=opsi_key, font=("Arial", 14)).pack(anchor='w', pady=3)
+                tk.Radiobutton(frame_jwb, text=f"{opsi_key}. {opsi_teks}", variable=var_pg, value=opsi_key, font=("Arial", 14)).pack(anchor='w', pady=5)
             self.input_vars = var_pg
             
         elif soal['tipe'] == 'PGK':
@@ -147,16 +194,9 @@ class SiswaApp(tk.Tk):
                 self.input_vars.append(var)
                 
         elif soal['tipe'] == 'ESSAY':
-            self.txt_essay = tk.Text(frame_jwb, height=8, width=90, font=("Arial", 14))
+            self.txt_essay = tk.Text(frame_jwb, height=10, width=90, font=("Arial", 14))
             self.txt_essay.pack(anchor='w')
             self.txt_essay.insert("1.0", self.jawaban_siswa.get(sid, ""))
-
-        footer = tk.Frame(self.frame_ujian)
-        footer.pack(fill='x', pady=30)
-        
-        if self.current_idx > 0: tk.Button(footer, text="<< Sebelumnya", command=self.simpan_dan_mundur, font=("Arial", 14), width=15).pack(side='left')
-        if self.current_idx < len(self.soal_data) - 1: tk.Button(footer, text="Selanjutnya >>", command=self.simpan_dan_maju, font=("Arial", 14), bg="lightblue", width=15).pack(side='right')
-        else: tk.Button(footer, text="Selesai & Kirim", command=self.selesai, font=("Arial", 14, "bold"), bg="red", fg="white", width=20).pack(side='right')
 
     def catat_jawaban_saat_ini(self):
         soal = self.soal_data[self.current_idx]
