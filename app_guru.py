@@ -3,10 +3,11 @@ from tkinter import ttk, filedialog, messagebox
 import json
 import base64
 import threading
-from flask import Flask, request, jsonify
-from PIL import Image, ImageTk
 import io
 import os
+import csv
+from flask import Flask, request, jsonify
+from PIL import Image, ImageTk
 
 app_flask = Flask(__name__)
 
@@ -14,457 +15,464 @@ app_flask = Flask(__name__)
 PROCTOR_PASSWORD = "admin123"
 DATA_UJIAN = {} 
 HASIL_SISWA = {}
-FILE_DB = "database_ujian_cbt.json" # File default saat pertama kali dibuka
+FILE_DB = "database_ujian_cbt.json"
 
 def load_db():
     global PROCTOR_PASSWORD, DATA_UJIAN, FILE_DB
     if os.path.exists(FILE_DB):
         try:
             with open(FILE_DB, 'r') as f:
-                data = json.load(f)
-                PROCTOR_PASSWORD = data.get("proctor_password", "admin123")
-                DATA_UJIAN = data.get("paket_ujian", {})
-        except:
+                d = json.load(f)
+                PROCTOR_PASSWORD = d.get("proctor_password", "admin123")
+                DATA_UJIAN = d.get("paket_ujian", {})
+        except: 
             PROCTOR_PASSWORD = "admin123"
             DATA_UJIAN = {}
-    else:
+    else: 
         PROCTOR_PASSWORD = "admin123"
         DATA_UJIAN = {}
 
 def save_db():
-    global FILE_DB
-    data = {
-        "proctor_password": PROCTOR_PASSWORD,
-        "paket_ujian": DATA_UJIAN
-    }
-    with open(FILE_DB, 'w') as f:
-        json.dump(data, f, indent=4)
+    with open(FILE_DB, 'w') as f: 
+        json.dump({
+            "proctor_password": PROCTOR_PASSWORD, 
+            "paket_ujian": DATA_UJIAN
+        }, f, indent=4)
 
 # --- FLASK SERVER ---
 @app_flask.route('/api/cek_password', methods=['POST'])
-def cek_password():
-    pwd = request.json.get('password')
-    if pwd == PROCTOR_PASSWORD:
+def cek_password(): 
+    if request.json.get('password') == PROCTOR_PASSWORD:
         return jsonify({"status": "sukses"})
-    else:
-        return jsonify({"status": "error", "pesan": "Password salah!"})
+    return jsonify({"status": "error", "pesan": "Password salah!"})
 
 @app_flask.route('/api/auth_soal', methods=['POST'])
 def auth_soal():
     token = request.json.get('token')
-    paket_terpilih = None
-    for p_id, p_data in DATA_UJIAN.items():
-        if p_data.get('token') == token:
-            paket_terpilih = p_data
-            break
-            
-    if not paket_terpilih:
-        return jsonify({"status": "error", "pesan": "Token ujian tidak ditemukan!"})
-    if not paket_terpilih.get('aktif', False):
-        return jsonify({"status": "error", "pesan": "Ujian ini belum diaktifkan oleh Proktor!"})
-    if len(paket_terpilih['soal']) == 0:
-        return jsonify({"status": "error", "pesan": "Belum ada soal di dalam paket ini!"})
-        
-    soal_siswa = []
-    for s in paket_terpilih['soal']:
-        item = s.copy()
-        item.pop('kunci', None) 
-        soal_siswa.append(item)
-        
+    paket = next((p for p in DATA_UJIAN.values() if p.get('token') == token), None)
+    
+    if not paket: return jsonify({"status": "error", "pesan": "Token ujian tidak ditemukan!"})
+    if not paket.get('aktif'): return jsonify({"status": "error", "pesan": "Ujian ini belum diaktifkan Proktor!"})
+    if len(paket['soal']) == 0: return jsonify({"status": "error", "pesan": "Belum ada soal di dalam paket ini!"})
+    
     return jsonify({
         "status": "sukses", 
-        "mapel": paket_terpilih['mapel'], 
-        "kelas": paket_terpilih['kelas'], 
-        "soal": soal_siswa
+        "mapel": paket['mapel'], 
+        "kelas": paket['kelas'], 
+        "soal": [{k:v for k,v in s.items() if k != 'kunci'} for s in paket['soal']]
     })
 
 @app_flask.route('/api/submit', methods=['POST'])
 def submit_jawaban():
-    data = request.json
-    nama = data.get('nama')
-    token = data.get('token')
-    jawaban = data.get('jawaban')
-    
-    paket = None
-    for p_id, p_data in DATA_UJIAN.items():
-        if p_data.get('token') == token:
-            paket = p_data
-            break
-            
+    d = request.json
+    token = d.get('token')
+    paket = next((p for p in DATA_UJIAN.values() if p.get('token') == token), None)
     if not paket: return jsonify({"status": "error"})
     
-    skor_total = 0.0
-    for soal in paket['soal']:
-        sid = str(soal['id'])
-        if sid not in jawaban: continue
-        
-        jawab = jawaban[sid]
-        bobot = float(soal.get('bobot', 10.0))
-        
-        if soal['tipe'] == 'PG' and jawab == soal['kunci']:
-            skor_total += bobot
-        elif soal['tipe'] == 'PGK' and isinstance(jawab, list) and sorted(jawab) == sorted(soal['kunci']):
-            skor_total += bobot
-        elif soal['tipe'] == 'BS' and isinstance(jawab, list) and jawab == soal['kunci']:
-            skor_total += bobot
+    skor = 0.0
+    for s in paket['soal']:
+        sid = str(s['id'])
+        if sid in d['jawaban']:
+            jwb = d['jawaban'][sid]
+            bobot = float(s.get('bobot', 10.0))
+            if s['tipe'] == 'PG' and jwb == s['kunci']: skor += bobot
+            elif s['tipe'] == 'PGK' and isinstance(jwb, list) and sorted(jwb) == sorted(s['kunci']): skor += bobot
+            elif s['tipe'] == 'BS' and isinstance(jwb, list) and jwb == s['kunci']: skor += bobot
             
-    kunci_hasil = f"{nama}_{token}"
-    HASIL_SISWA[kunci_hasil] = {
-        "nama": nama,
-        "kelas": paket['kelas'],
-        "mapel": paket['mapel'],
-        "token": token,
-        "skor": skor_total, 
-        "detail": jawaban
+    HASIL_SISWA[f"{d['nama']}_{token}"] = {
+        "nama": d['nama'], 
+        "kelas": paket['kelas'], 
+        "mapel": paket['mapel'], 
+        "token": token, 
+        "skor": skor, 
+        "detail": d['jawaban']
     }
     
-    if hasattr(app_flask, 'gui'):
+    if hasattr(app_flask, 'gui'): 
         app_flask.gui.update_proktor_hasil()
     return jsonify({"status": "sukses"})
 
-def run_server():
+def run_server(): 
     app_flask.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
 
-# --- GUI APLIKASI GURU ---
+# --- GUI GURU MODERN ---
 class GuruApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Server Proktor CBT (Multi-Kelas & Token)")
-        self.geometry("900x850")
+        self.title("Server Proktor CBT Modern")
+        self.geometry("950x900")
+        self.configure(bg="#f4f6f9")
         app_flask.gui = self
-        
         load_db()
         self.b64_image = ""
         
+        # --- HEADER & LOGO ---
+        header_frame = tk.Frame(self, bg="#ffffff", pady=10)
+        header_frame.pack(fill='x', side='top')
+        
+        if os.path.exists("logo.jpg"):
+            try:
+                img_logo = Image.open("logo.jpg")
+                img_logo = img_logo.resize((60, 60))
+                self.logo_img = ImageTk.PhotoImage(img_logo)
+                tk.Label(header_frame, image=self.logo_img, bg="#ffffff").pack(side='left', padx=(20, 10))
+            except:
+                pass
+                
+        tk.Label(header_frame, text="SERVER PROKTOR CBT - SMA ISLAM DARUSSALAM", font=("Segoe UI", 16, "bold"), fg="#1a252f", bg="#ffffff").pack(side='left')
+
+        # --- AKTIFKAN TEMA MODERN ---
+        style = ttk.Style(self)
+        if 'clam' in style.theme_names():
+            style.theme_use('clam')
+            
+        style.configure("TNotebook.Tab", font=("Segoe UI", 11, "bold"), padding=[15, 8])
+        style.configure("Treeview.Heading", font=("Segoe UI", 10, "bold"), background="#e9ecef")
+        style.configure("Treeview", font=("Segoe UI", 10), rowheight=28)
+        style.configure("TLabelframe", background="#ffffff")
+        style.configure("TLabelframe.Label", font=("Segoe UI", 10, "bold"), background="#ffffff", foreground="#333")
+        
         notebook = ttk.Notebook(self)
-        notebook.pack(fill='both', expand=True, padx=10, pady=10)
+        notebook.pack(fill='both', expand=True, padx=15, pady=15)
         
-        self.tab_soal = ttk.Frame(notebook)
-        self.tab_proktor = ttk.Frame(notebook)
+        self.tab_soal = tk.Frame(notebook, bg="#ffffff", padx=10, pady=10)
+        self.tab_proktor = tk.Frame(notebook, bg="#ffffff", padx=10, pady=10)
         
-        notebook.add(self.tab_soal, text="📝 Manajemen & Buat Soal")
-        notebook.add(self.tab_proktor, text="🖥️ Kontrol Ujian & Proktor")
+        notebook.add(self.tab_soal, text="📝 Manajemen Soal")
+        notebook.add(self.tab_proktor, text="🖥️ Kontrol Proktor & Hasil")
         
         self.setup_tab_soal()
         self.setup_tab_proktor()
-        
         threading.Thread(target=run_server, daemon=True).start()
 
-    def get_list_paket(self):
+    def m_btn(self, parent, text, bg, fg, cmd):
+        return tk.Button(parent, text=text, bg=bg, fg=fg, relief="flat", font=("Segoe UI", 10, "bold"), cursor="hand2", command=cmd, padx=10, pady=4)
+
+    def get_list_paket(self): 
         return [f"{k} | {v['mapel']} (Kls: {v['kelas']}) - Token: {v['token']}" for k, v in DATA_UJIAN.items()]
 
     def setup_tab_soal(self):
-        # 1. PANEL MANAJEMEN FILE DATABASE
-        frame_db = tk.LabelFrame(self.tab_soal, text="Manajemen File Database (.json)", padx=10, pady=5)
-        frame_db.pack(fill='x', padx=10, pady=5)
+        f_db = ttk.LabelFrame(self.tab_soal, text="📁 File Database (.json)")
+        f_db.pack(fill='x', pady=5)
+        self.lbl_db = tk.Label(f_db, text=f"File Aktif: {os.path.basename(FILE_DB)}", font=("Segoe UI", 11, "bold"), fg="#0d6efd", bg="white")
+        self.lbl_db.pack(side='left', padx=15, pady=10)
+        self.m_btn(f_db, "➕ Buat File Baru", "#17a2b8", "white", self.buat_file_db).pack(side='right', padx=10, pady=10)
+        self.m_btn(f_db, "📂 Buka File Lain", "#6c757d", "white", self.buka_file_db).pack(side='right', padx=5, pady=10)
 
-        self.lbl_db_aktif = tk.Label(frame_db, text=f"File Aktif: {os.path.basename(FILE_DB)}", font=("Arial", 11, "bold"), fg="blue")
-        self.lbl_db_aktif.pack(side='left', padx=5)
-
-        tk.Button(frame_db, text="📂 Buka File Lain", command=self.buka_file_db).pack(side='right', padx=5)
-        tk.Button(frame_db, text="➕ Buat File Baru", bg="yellow", command=self.buat_file_db).pack(side='right', padx=5)
-
-        # 2. PANEL PILIH PAKET
-        frame_paket = tk.LabelFrame(self.tab_soal, text="Pilih / Buat Paket Ujian di File Ini", padx=10, pady=10)
-        frame_paket.pack(fill='x', padx=10, pady=5)
-        
+        f_pkt = ttk.LabelFrame(self.tab_soal, text="📦 Pilih / Buat Paket Ujian")
+        f_pkt.pack(fill='x', pady=10)
         self.paket_var = tk.StringVar()
-        self.cb_paket = ttk.Combobox(frame_paket, textvariable=self.paket_var, values=self.get_list_paket(), state="readonly", width=50)
-        self.cb_paket.pack(side='left', padx=5)
+        self.cb_paket = ttk.Combobox(f_pkt, textvariable=self.paket_var, values=self.get_list_paket(), state="readonly", width=55, font=("Segoe UI", 11))
+        self.cb_paket.pack(side='left', padx=15, pady=10)
+        self.m_btn(f_pkt, "➕ Buat Paket Baru", "#28a745", "white", self.buat_paket).pack(side='left', padx=10)
+
+        f_in = ttk.LabelFrame(self.tab_soal, text="✏️ Input Soal Baru")
+        f_in.pack(fill='both', expand=True, pady=5)
         
-        tk.Button(frame_paket, text="+ Buat Paket Baru", bg="lightgreen", command=self.buat_paket_baru).pack(side='left', padx=5)
+        form = tk.Frame(f_in, bg="white", padx=10, pady=10)
+        form.pack(fill='both', expand=True)
 
-        # 3. PANEL INPUT SOAL
-        frame_input = tk.LabelFrame(self.tab_soal, text="Input Soal Baru", padx=10, pady=10)
-        frame_input.pack(fill='both', expand=True, padx=10, pady=5)
-
-        tk.Label(frame_input, text="Tipe Soal:").grid(row=0, column=0, sticky='w', pady=5)
+        tk.Label(form, text="Tipe Soal:", bg="white", font=("Segoe UI", 10)).grid(row=0, column=0, sticky='w', pady=5)
         self.tipe_var = tk.StringVar(value="PG")
-        cb_tipe = ttk.Combobox(frame_input, textvariable=self.tipe_var, values=["PG", "PGK", "BS", "ESSAY"], state="readonly")
-        cb_tipe.grid(row=0, column=1, sticky='w')
-        cb_tipe.bind("<<ComboboxSelected>>", self.refresh_form)
+        cb = ttk.Combobox(form, textvariable=self.tipe_var, values=["PG", "PGK", "BS", "ESSAY"], state="readonly", width=15)
+        cb.grid(row=0, column=1, sticky='w')
+        cb.bind("<<ComboboxSelected>>", self.ref_form)
 
-        tk.Label(frame_input, text="Bobot Poin:").grid(row=1, column=0, sticky='w', pady=5)
+        tk.Label(form, text="Bobot Poin:", bg="white", font=("Segoe UI", 10)).grid(row=1, column=0, sticky='w', pady=5)
         self.bobot_var = tk.DoubleVar(value=10.00)
-        tk.Spinbox(frame_input, from_=0.00, to=100.00, increment=0.5, format="%.2f", textvariable=self.bobot_var, width=10).grid(row=1, column=1, sticky='w')
+        ttk.Spinbox(form, from_=0, to=100, increment=0.5, format="%.2f", textvariable=self.bobot_var, width=10).grid(row=1, column=1, sticky='w')
 
-        tk.Label(frame_input, text="Pertanyaan:").grid(row=2, column=0, sticky='nw', pady=5)
-        self.txt_soal = tk.Text(frame_input, height=4, width=65)
+        tk.Label(form, text="Pertanyaan:", bg="white", font=("Segoe UI", 10)).grid(row=2, column=0, sticky='nw', pady=5)
+        self.txt_soal = tk.Text(form, height=4, width=70, font=("Segoe UI", 11), relief="solid", bd=1)
         self.txt_soal.grid(row=2, column=1, pady=5)
 
-        tk.Button(frame_input, text="Unggah Gambar", command=self.upload_gambar).grid(row=3, column=1, sticky='w')
-        self.lbl_img_status = tk.Label(frame_input, text="Tidak ada gambar", fg="gray")
-        self.lbl_img_status.grid(row=3, column=1, sticky='e', padx=10)
+        self.m_btn(form, "🖼️ Unggah Gambar", "#ffc107", "black", self.up_img).grid(row=3, column=1, sticky='w')
+        self.lbl_img = tk.Label(form, text="Tidak ada gambar", fg="gray", bg="white", font=("Segoe UI", 9))
+        self.lbl_img.grid(row=3, column=1, sticky='e', padx=10)
 
-        self.frame_dinamis = tk.Frame(frame_input)
-        self.frame_dinamis.grid(row=4, column=0, columnspan=2, pady=10, sticky='w')
-        
-        tk.Button(frame_input, text="💾 Simpan Soal", bg="lightblue", font=("Arial", 10, "bold"), command=self.simpan_soal).grid(row=5, column=1, sticky='e', pady=10)
-        self.refresh_form()
+        self.f_dinamis = tk.Frame(form, bg="white")
+        self.f_dinamis.grid(row=4, column=0, columnspan=2, pady=15, sticky='w')
+        self.m_btn(form, "💾 SIMPAN SOAL", "#0d6efd", "white", self.simpan_soal).grid(row=5, column=1, sticky='e', pady=10)
+        self.ref_form()
 
-    # --- FUNGSI MANAJEMEN DATABASE ---
+    # --- FUNGSI MANAJEMEN ---
     def buka_file_db(self):
-        global FILE_DB, HASIL_SISWA
-        filepath = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON Files", "*.json")])
-        if filepath:
-            FILE_DB = filepath
-            self.lbl_db_aktif.config(text=f"File Aktif: {os.path.basename(FILE_DB)}")
-            HASIL_SISWA.clear() # Kosongkan hasil siswa lama karena pindah file
-            self.segarkan_semua_data()
+        global FILE_DB
+        fp = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON", "*.json")])
+        if fp:
+            FILE_DB = fp
+            HASIL_SISWA.clear()
+            self.segarkan()
+            self.lbl_db.config(text=f"File Aktif: {os.path.basename(FILE_DB)}")
             messagebox.showinfo("Sukses", f"Berhasil membuka database:\n{os.path.basename(FILE_DB)}")
-
+            
     def buat_file_db(self):
-        global FILE_DB, PROCTOR_PASSWORD, DATA_UJIAN, HASIL_SISWA
-        filepath = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON Files", "*.json")], initialfile="soal_baru.json")
-        if filepath:
-            FILE_DB = filepath
-            # Reset isi memori untuk file baru
+        global FILE_DB, PROCTOR_PASSWORD, DATA_UJIAN
+        fp = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON", "*.json")], initialfile="soal_baru.json")
+        if fp:
+            FILE_DB = fp
             PROCTOR_PASSWORD = "admin123"
             DATA_UJIAN = {}
             HASIL_SISWA.clear()
-            save_db() # Langsung ciptakan file fisik kosongnya
-            
-            self.lbl_db_aktif.config(text=f"File Aktif: {os.path.basename(FILE_DB)}")
-            self.segarkan_semua_data()
-            messagebox.showinfo("Sukses", f"File database baru berhasil dibuat:\n{os.path.basename(FILE_DB)}\n\nSilakan 'Buat Paket Baru' untuk mulai memasukkan soal.")
+            save_db()
+            self.segarkan()
+            self.lbl_db.config(text=f"File Aktif: {os.path.basename(FILE_DB)}")
+            messagebox.showinfo("Sukses", "File database baru berhasil dibuat!")
 
-    def segarkan_semua_data(self):
+    def segarkan(self):
         load_db()
         self.cb_paket['values'] = self.get_list_paket()
-        self.paket_var.set("") # Reset pilihan combobox
-        self.update_proktor_paket()
+        self.paket_var.set("")
+        self.upd_tree()
         self.update_proktor_hasil()
         self.ent_pwd.delete(0, tk.END)
         self.ent_pwd.insert(0, PROCTOR_PASSWORD)
 
-    # --- SISA FUNGSI BAWAAN ---
-    def buat_paket_baru(self):
-        win = tk.Toplevel(self)
-        win.title("Buat Paket Ujian Baru")
-        win.geometry("350x250")
+    def buat_paket(self):
+        w = tk.Toplevel(self)
+        w.title("Paket Baru")
+        w.geometry("350x250")
+        w.configure(bg="white", padx=20, pady=20)
         
-        tk.Label(win, text="Mata Pelajaran:").pack(pady=2)
-        ent_mapel = tk.Entry(win, width=30)
-        ent_mapel.pack(pady=2)
+        tk.Label(w, text="Mapel:", bg="white").pack(anchor='w')
+        e1 = ttk.Entry(w, width=35); e1.pack(pady=2)
+        tk.Label(w, text="Kelas (Contoh: 10 IPA 1):", bg="white").pack(anchor='w', pady=(5,0))
+        e2 = ttk.Entry(w, width=35); e2.pack(pady=2)
+        tk.Label(w, text="Token Ujian:", bg="white").pack(anchor='w', pady=(5,0))
+        e3 = ttk.Entry(w, width=35); e3.pack(pady=2)
         
-        tk.Label(win, text="Kelas (Misal: 10 IPA 1 / 11 IPS):").pack(pady=2)
-        ent_kelas = tk.Entry(win, width=30)
-        ent_kelas.pack(pady=2)
-        
-        tk.Label(win, text="Token Ujian (Kombinasi Huruf/Angka):").pack(pady=2)
-        ent_token = tk.Entry(win, width=30)
-        ent_token.pack(pady=2)
-        
-        def simpan_paket():
-            mapel = ent_mapel.get().strip()
-            kelas = ent_kelas.get().strip()
-            token = ent_token.get().strip().upper()
-            
-            if not mapel or not kelas or not token:
-                return messagebox.showwarning("Error", "Semua kolom wajib diisi!", parent=win)
-                
-            for v in DATA_UJIAN.values():
-                if v['token'] == token:
-                    return messagebox.showwarning("Error", f"Token '{token}' sudah dipakai paket lain!", parent=win)
-            
-            p_id = f"paket_{len(DATA_UJIAN) + 1}"
-            DATA_UJIAN[p_id] = {"mapel": mapel, "kelas": kelas, "token": token, "aktif": False, "soal": []}
+        def simpan():
+            if not e1.get() or not e2.get() or not e3.get(): 
+                return messagebox.showwarning("Error", "Isi semua kolom!")
+            p_id = f"paket_{len(DATA_UJIAN)+1}"
+            DATA_UJIAN[p_id] = {
+                "mapel": e1.get().strip(), 
+                "kelas": e2.get().strip(), 
+                "token": e3.get().strip().upper(), 
+                "aktif": False, 
+                "soal": []
+            }
             save_db()
-            
             self.cb_paket['values'] = self.get_list_paket()
-            self.paket_var.set(f"{p_id} | {mapel} (Kls: {kelas}) - Token: {token}")
-            self.update_proktor_paket()
-            messagebox.showinfo("Sukses", "Paket Ujian berhasil dibuat!", parent=win)
-            win.destroy()
+            self.paket_var.set(f"{p_id} | {e1.get()} (Kls: {e2.get()}) - Token: {e3.get().upper()}")
+            self.upd_tree()
+            w.destroy()
             
-        tk.Button(win, text="Simpan Paket", bg="green", fg="white", command=simpan_paket).pack(pady=15)
+        self.m_btn(w, "Simpan", "#28a745", "white", simpan).pack(pady=15)
 
-    def upload_gambar(self):
-        filepath = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
-        if filepath:
-            try:
-                img = Image.open(filepath)
-                img.thumbnail((500, 500))
-                buffered = io.BytesIO()
-                img.save(buffered, format="PNG")
-                self.b64_image = base64.b64encode(buffered.getvalue()).decode('utf-8')
-                self.lbl_img_status.config(text="Gambar siap!", fg="green")
-            except Exception as e:
-                messagebox.showerror("Error", str(e))
+    def up_img(self):
+        fp = filedialog.askopenfilename(filetypes=[("Image", "*.png;*.jpg;*.jpeg")])
+        if fp:
+            img = Image.open(fp)
+            img.thumbnail((500, 500))
+            b = io.BytesIO()
+            img.save(b, format="PNG")
+            self.b64_image = base64.b64encode(b.getvalue()).decode('utf-8')
+            self.lbl_img.config(text="Gambar siap!", fg="green")
 
-    def refresh_form(self, event=None):
-        for widget in self.frame_dinamis.winfo_children(): widget.destroy()
-        tipe = self.tipe_var.get()
-        self.input_data = []
+    def ref_form(self, e=None):
+        for w in self.f_dinamis.winfo_children(): w.destroy()
+        t = self.tipe_var.get()
+        self.i_data = []
         
-        if tipe == "PG":
-            lbls = ['A', 'B', 'C', 'D', 'E']
-            for i, l in enumerate(lbls):
-                tk.Label(self.frame_dinamis, text=f"Opsi {l}:").grid(row=i, column=0, sticky='w')
-                e = tk.Entry(self.frame_dinamis, width=50)
-                e.grid(row=i, column=1, padx=5, pady=2)
-                self.input_data.append(e)
-            tk.Label(self.frame_dinamis, text="Kunci:").grid(row=5, column=0, pady=10)
-            self.kunci_pg = tk.StringVar(value="A")
-            ttk.Combobox(self.frame_dinamis, textvariable=self.kunci_pg, values=lbls, width=5, state="readonly").grid(row=5, column=1, sticky='w')
-        elif tipe in ["PGK", "BS"]:
-            tk.Label(self.frame_dinamis, text="4 Pernyataan:").grid(row=0, column=0, sticky='w')
-            tk.Label(self.frame_dinamis, text="Kunci").grid(row=0, column=2, padx=10)
-            self.kunci_vars = []
+        if t == "PG":
+            for i, l in enumerate(['A','B','C','D','E']):
+                tk.Label(self.f_dinamis, text=f"Opsi {l}:", bg="white").grid(row=i, column=0, sticky='w')
+                en = ttk.Entry(self.f_dinamis, width=60)
+                en.grid(row=i, column=1, padx=5, pady=3)
+                self.i_data.append(en)
+            tk.Label(self.f_dinamis, text="Kunci:", bg="white").grid(row=5, column=0, pady=10)
+            self.k_pg = tk.StringVar(value="A")
+            ttk.Combobox(self.f_dinamis, textvariable=self.k_pg, values=['A','B','C','D','E'], width=5, state="readonly").grid(row=5, column=1, sticky='w')
+            
+        elif t in ["PGK", "BS"]:
+            self.k_v = []
             for i in range(4):
-                e = tk.Entry(self.frame_dinamis, width=45)
-                e.grid(row=i+1, column=0, columnspan=2, pady=2)
-                self.input_data.append(e)
-                if tipe == "PGK":
-                    var = tk.StringVar(value="")
-                    tk.Checkbutton(self.frame_dinamis, text="Benar", variable=var, onvalue=str(i), offvalue="").grid(row=i+1, column=2)
-                    self.kunci_vars.append(var)
+                en = ttk.Entry(self.f_dinamis, width=50)
+                en.grid(row=i, column=0, pady=3)
+                self.i_data.append(en)
+                
+                if t == "PGK":
+                    v = tk.StringVar(value="")
+                    tk.Checkbutton(self.f_dinamis, text="Benar", variable=v, onvalue=str(i), offvalue="", bg="white").grid(row=i, column=1, padx=10)
                 else:
-                    var = tk.StringVar(value="B")
-                    ttk.Combobox(self.frame_dinamis, textvariable=var, values=["B", "S"], width=3, state="readonly").grid(row=i+1, column=2)
-                    self.kunci_vars.append(var)
-        elif tipe == "ESSAY":
-            tk.Label(self.frame_dinamis, text="Keterangan:\nSoal Essay tidak dinilai otomatis.", fg="blue", justify="left").grid(row=0, column=0, columnspan=2, sticky='w', pady=10)
+                    v = tk.StringVar(value="B")
+                    ttk.Combobox(self.f_dinamis, textvariable=v, values=["B","S"], width=3, state="readonly").grid(row=i, column=1, padx=10)
+                self.k_v.append(v)
+                
+        elif t == "ESSAY": 
+            tk.Label(self.f_dinamis, text="(Soal Essay tidak dinilai otomatis)", fg="blue", bg="white").grid(row=0, column=0)
 
     def simpan_soal(self):
-        paket_str = self.paket_var.get()
-        if not paket_str: return messagebox.showwarning("Peringatan", "Pilih atau Buat Paket Ujian terlebih dahulu!")
-        p_id = paket_str.split(" | ")[0]
-        tipe = self.tipe_var.get()
-        soal_teks = self.txt_soal.get("1.0", tk.END).strip()
-        if not soal_teks: return messagebox.showwarning("Peringatan", "Soal tidak boleh kosong")
+        if not self.paket_var.get(): 
+            return messagebox.showwarning("Error", "Pilih atau buat paket ujian terlebih dahulu!")
+            
+        p_id = self.paket_var.get().split(" | ")[0]
+        t = self.tipe_var.get()
         
         try: nilai_bobot = float(self.bobot_var.get())
-        except ValueError: return messagebox.showwarning("Peringatan", "Bobot harus angka")
-            
-        data_soal = {
-            "id": len(DATA_UJIAN[p_id]['soal']) + 1, 
-            "tipe": tipe, 
-            "bobot": nilai_bobot,
-            "soal": soal_teks, 
+        except ValueError: return messagebox.showwarning("Error", "Bobot harus angka!")
+        
+        ds = {
+            "id": len(DATA_UJIAN[p_id]['soal'])+1, 
+            "tipe": t, 
+            "bobot": nilai_bobot, 
+            "soal": self.txt_soal.get("1.0", tk.END).strip(), 
             "gambar": self.b64_image
         }
         
-        if tipe == "PG":
-            data_soal["opsi"] = {chr(65+i): e.get() for i, e in enumerate(self.input_data)}
-            data_soal["kunci"] = self.kunci_pg.get()
-        elif tipe in ["PGK", "BS"]:
-            data_soal["pernyataan"] = [e.get() for e in self.input_data]
-            if tipe == "PGK": data_soal["kunci"] = [int(v.get()) for v in self.kunci_vars if v.get() != ""]
-            else: data_soal["kunci"] = [v.get() for v in self.kunci_vars]
-        elif tipe == "ESSAY":
-            data_soal["kunci"] = ""
-
-        DATA_UJIAN[p_id]['soal'].append(data_soal)
+        if t == "PG": 
+            ds["opsi"] = {chr(65+i): e.get() for i, e in enumerate(self.i_data)}
+            ds["kunci"] = self.k_pg.get()
+        elif t in ["PGK", "BS"]: 
+            ds["pernyataan"] = [e.get() for e in self.i_data]
+            if t == "PGK": ds["kunci"] = [int(v.get()) for v in self.k_v if v.get()!=""]
+            else: ds["kunci"] = [v.get() for v in self.k_v]
+        elif t == "ESSAY": 
+            ds["kunci"] = ""
+            
+        DATA_UJIAN[p_id]['soal'].append(ds)
         save_db()
-        self.update_proktor_paket()
+        self.upd_tree()
         
         self.txt_soal.delete("1.0", tk.END)
+        self.lbl_img.config(text="Tidak ada gambar", fg="gray")
         self.b64_image = ""
-        self.lbl_img_status.config(text="Tidak ada gambar", fg="gray")
-        self.refresh_form()
-        messagebox.showinfo("Sukses", f"Soal berhasil ditambahkan ke paket {DATA_UJIAN[p_id]['mapel']}!")
+        self.ref_form()
+        messagebox.showinfo("Sukses", "Soal berhasil disimpan!")
 
     def setup_tab_proktor(self):
         import socket
-        ip_address = socket.gethostbyname(socket.gethostname())
-        tk.Label(self.tab_proktor, text=f"🌐 IP Server Proktor: {ip_address}", font=("Arial", 12, "bold"), fg="blue").pack(pady=5)
+        ip = socket.gethostbyname(socket.gethostname())
+        tk.Label(self.tab_proktor, text=f"🌐 IP Server Proktor Anda: {ip}", font=("Segoe UI", 16, "bold"), fg="#dc3545", bg="white").pack(pady=10)
         
-        frame_pwd = tk.LabelFrame(self.tab_proktor, text="Pengaturan Password Keluar Aplikasi Siswa", padx=10, pady=8)
-        frame_pwd.pack(fill='x', padx=20, pady=5)
-        tk.Label(frame_pwd, text="Password Proktor Baru:").pack(side='left', padx=5)
-        self.ent_pwd = tk.Entry(frame_pwd, width=25, show="*")
+        f_pwd = tk.Frame(self.tab_proktor, bg="white")
+        f_pwd.pack(pady=5)
+        tk.Label(f_pwd, text="Password Keluar Siswa:", bg="white", font=("Segoe UI", 10)).pack(side='left')
+        self.ent_pwd = ttk.Entry(f_pwd, width=20, show="*")
         self.ent_pwd.insert(0, PROCTOR_PASSWORD)
-        self.ent_pwd.pack(side='left', padx=5)
-        tk.Button(frame_pwd, text="Simpan Password", bg="lightblue", command=self.simpan_password_proktor).pack(side='left', padx=5)
-
-        tk.Label(self.tab_proktor, text="Kontrol Paket Ujian (Mapel & Token)", font=("Arial", 11, "bold")).pack(anchor='w', padx=20, pady=(10,0))
-        cols_paket = ("ID", "Mapel", "Kelas", "Token", "Soal", "Status")
-        self.tree_paket = ttk.Treeview(self.tab_proktor, columns=cols_paket, show="headings", height=4)
-        for c in cols_paket: self.tree_paket.heading(c, text=c)
-        self.tree_paket.column("ID", width=50); self.tree_paket.column("Soal", width=50); self.tree_paket.column("Status", width=100)
-        self.tree_paket.pack(fill='x', padx=20, pady=5)
+        self.ent_pwd.pack(side='left', padx=10)
         
-        frame_btn = tk.Frame(self.tab_proktor)
-        frame_btn.pack(fill='x', padx=20)
-        tk.Button(frame_btn, text="🟢 Aktifkan Ujian", bg="lightgreen", command=lambda: self.toggle_ujian(True)).pack(side='left', padx=5)
-        tk.Button(frame_btn, text="🔴 Nonaktifkan Ujian", bg="pink", command=lambda: self.toggle_ujian(False)).pack(side='left', padx=5)
+        def simpan_pwd():
+            global PROCTOR_PASSWORD
+            PROCTOR_PASSWORD = self.ent_pwd.get().strip()
+            save_db()
+            messagebox.showinfo("Sukses", "Password berhasil disimpan!")
+            
+        self.m_btn(f_pwd, "Simpan", "#6c757d", "white", simpan_pwd).pack(side='left')
+
+        tk.Label(self.tab_proktor, text="Status Paket Ujian", font=("Segoe UI", 12, "bold"), bg="white").pack(anchor='w', pady=(15,5))
+        self.tree_p = ttk.Treeview(self.tab_proktor, columns=("ID", "Mapel", "Kls", "Token", "Soal", "Status"), show="headings", height=4)
+        for c in ("ID", "Mapel", "Kls", "Token", "Soal", "Status"): 
+            self.tree_p.heading(c, text=c)
+        self.tree_p.column("ID", width=50); self.tree_p.column("Soal", width=50); self.tree_p.column("Status", width=80)
+        self.tree_p.pack(fill='x')
         
-        tk.Label(self.tab_proktor, text="Live Monitor Hasil Siswa (Klik Ganda untuk koreksi Essay)", font=("Arial", 11, "bold")).pack(anchor='w', padx=20, pady=(10,0))
-        cols_hasil = ("Nama", "Kelas", "Mapel", "Skor")
-        self.tree_hasil = ttk.Treeview(self.tab_proktor, columns=cols_hasil, show="headings", height=8)
-        for c in cols_hasil: self.tree_hasil.heading(c, text=c)
-        self.tree_hasil.pack(fill='both', expand=True, padx=20, pady=5)
-        self.tree_hasil.bind("<Double-1>", self.lihat_detail_siswa)
+        f_btn = tk.Frame(self.tab_proktor, bg="white")
+        f_btn.pack(pady=10)
+        self.m_btn(f_btn, "▶ AKTIFKAN", "#28a745", "white", lambda: self.tog_ujian(True)).pack(side='left', padx=5)
+        self.m_btn(f_btn, "⏸ TUTUP UJIAN", "#dc3545", "white", lambda: self.tog_ujian(False)).pack(side='left', padx=5)
+        self.m_btn(f_btn, "📥 UNDUH HASIL (CSV)", "#17a2b8", "white", self.unduh_hasil_csv).pack(side='left', padx=30)
         
-        self.update_proktor_paket()
+        tk.Label(self.tab_proktor, text="Live Monitor Hasil Siswa (Klik Ganda untuk Detail Jawaban)", font=("Segoe UI", 12, "bold"), bg="white").pack(anchor='w', pady=(15,5))
+        self.tree_h = ttk.Treeview(self.tab_proktor, columns=("Nama", "Kls", "Mapel", "Skor"), show="headings", height=8)
+        for c in ("Nama", "Kls", "Mapel", "Skor"): 
+            self.tree_h.heading(c, text=c)
+        self.tree_h.pack(fill='both', expand=True)
+        self.tree_h.bind("<Double-1>", self.cek_essay)
+        
+        self.upd_tree()
 
-    def simpan_password_proktor(self):
-        global PROCTOR_PASSWORD
-        pwd_baru = self.ent_pwd.get().strip()
-        if not pwd_baru: return messagebox.showwarning("Error", "Password tidak boleh kosong!")
-        PROCTOR_PASSWORD = pwd_baru
-        save_db()
-        messagebox.showinfo("Sukses", "Password proktor berhasil diperbarui!")
+    def tog_ujian(self, aktif):
+        s = self.tree_p.selection()
+        if s: 
+            p_id = self.tree_p.item(s[0])['values'][0]
+            DATA_UJIAN[p_id]['aktif'] = aktif
+            save_db()
+            self.upd_tree()
 
-    def toggle_ujian(self, aktifkan):
-        selected = self.tree_paket.selection()
-        if not selected: return
-        p_id = self.tree_paket.item(selected[0])['values'][0]
-        DATA_UJIAN[p_id]['aktif'] = aktifkan
-        save_db()
-        self.update_proktor_paket()
-        status = "Diaktifkan" if aktifkan else "Dinonaktifkan"
-        messagebox.showinfo("Update", f"Ujian {DATA_UJIAN[p_id]['mapel']} telah {status}!")
-
-    def update_proktor_paket(self):
-        for item in self.tree_paket.get_children(): self.tree_paket.delete(item)
-        for p_id, v in DATA_UJIAN.items():
-            status = "🟢 AKTIF" if v.get('aktif') else "🔴 Tutup"
-            self.tree_paket.insert("", tk.END, values=(p_id, v['mapel'], v['kelas'], v['token'], len(v['soal']), status))
+    def upd_tree(self):
+        for i in self.tree_p.get_children(): self.tree_p.delete(i)
+        for k, v in DATA_UJIAN.items(): 
+            status = "🟢 Aktif" if v.get('aktif') else "🔴 Tutup"
+            self.tree_p.insert("", tk.END, values=(k, v['mapel'], v['kelas'], v['token'], len(v['soal']), status))
 
     def update_proktor_hasil(self):
-        for item in self.tree_hasil.get_children(): self.tree_hasil.delete(item)
-        for key, data in HASIL_SISWA.items():
-            self.tree_hasil.insert("", tk.END, values=(data['nama'], data['kelas'], data['mapel'], f"{data['skor']:.2f}"))
+        for i in self.tree_h.get_children(): self.tree_h.delete(i)
+        for d in HASIL_SISWA.values(): 
+            self.tree_h.insert("", tk.END, values=(d['nama'], d['kelas'], d['mapel'], f"{d['skor']:.2f}"))
 
-    def lihat_detail_siswa(self, event):
-        selected = self.tree_hasil.selection()
-        if not selected: return
-        item_vals = self.tree_hasil.item(selected[0])['values']
-        nama, kelas, mapel = item_vals[0], str(item_vals[1]), item_vals[2]
+    def cek_essay(self, ev):
+        s = self.tree_h.selection()
+        if not s: return
+        v = self.tree_h.item(s[0])['values']
         
-        data_siswa = None
-        for data in HASIL_SISWA.values():
-            if data['nama'] == nama and str(data['kelas']) == kelas and data['mapel'] == mapel:
-                data_siswa = data; break
-        if not data_siswa: return
+        d = next((x for x in HASIL_SISWA.values() if x['nama']==v[0] and str(x['kelas'])==str(v[1])), None)
+        if not d: return
+        p = next((x for x in DATA_UJIAN.values() if x['token']==d['token']), None)
         
-        paket_soal = None
-        for v in DATA_UJIAN.values():
-            if v['token'] == data_siswa['token']: paket_soal = v; break
+        w = tk.Toplevel(self)
+        w.title(f"Detail Jawaban - {v[0]}")
+        w.geometry("700x600")
+        w.configure(bg="#ffffff")
         
-        win = tk.Toplevel(self)
-        win.title(f"Koreksi Essay - {nama}")
-        win.geometry("600x500")
-        tk.Label(win, text=f"{nama} | {mapel} | Skor PG: {data_siswa['skor']:.2f}", font=("Arial", 14, "bold"), fg="blue").pack(pady=10)
+        tk.Label(w, text=f"Detail Jawaban: {v[0]}\nSkor Akhir: {d['skor']:.2f}", font=("Segoe UI", 14, "bold"), bg="#ffffff", fg="#1a252f").pack(pady=10)
         
-        txt = tk.Text(win, wrap="word", font=("Arial", 11))
-        txt.pack(fill="both", expand=True, padx=15, pady=10)
+        t = tk.Text(w, font=("Segoe UI", 11), wrap="word", bg="#f8f9fa", relief="solid", bd=1, padx=10, pady=10)
+        t.pack(fill="both", expand=True, padx=20, pady=(0,20))
         
-        ada_essay = False
-        if paket_soal:
-            for soal in paket_soal['soal']:
-                if soal['tipe'] == 'ESSAY':
-                    ada_essay = True
-                    sid = str(soal['id'])
-                    jwb = data_siswa['detail'].get(sid, "[Kosong]")
-                    txt.insert(tk.END, f"Soal (Maks {soal.get('bobot', 10.0):.2f}): {soal['soal']}\nJawaban: {jwb}\n\n")
-                    txt.insert(tk.END, "-"*50 + "\n\n")
-        
-        if not ada_essay: txt.insert(tk.END, "Ujian ini tidak memiliki soal essay.")
-        txt.config(state="disabled")
+        for soal in (p['soal'] if p else []):
+            tipe = soal['tipe']
+            sid = str(soal['id'])
+            jwb_siswa = d['detail'].get(sid, '[Tidak Dijawab]')
+            kunci = soal.get('kunci', '')
+            
+            t.insert(tk.END, f"Soal No {soal['id']} ({tipe}) - Poin: {soal.get('bobot', 10):.2f}\n", "bold")
+            t.insert(tk.END, f"Tanya: {soal['soal']}\n")
+            
+            if tipe == 'ESSAY':
+                t.insert(tk.END, f"Jawaban Siswa:\n{jwb_siswa}\n")
+            else:
+                t.insert(tk.END, f"Jawab Siswa: {jwb_siswa}\n")
+                t.insert(tk.END, f"Kunci Benar: {kunci}\n")
+                
+                benar = False
+                if tipe == 'PG' and jwb_siswa == kunci: benar = True
+                elif tipe == 'PGK' and isinstance(jwb_siswa, list) and sorted(jwb_siswa) == sorted(kunci): benar = True
+                elif tipe == 'BS' and isinstance(jwb_siswa, list) and jwb_siswa == kunci: benar = True
+                
+                if benar: t.insert(tk.END, "Status: ✅ BENAR\n")
+                else: t.insert(tk.END, "Status: ❌ SALAH\n")
+                    
+            t.insert(tk.END, f"\n{'-'*60}\n\n")
+            
+        t.tag_configure("bold", font=("Segoe UI", 11, "bold"))
+        t.config(state="disabled")
 
-if __name__ == "__main__":
+    def unduh_hasil_csv(self):
+        if not HASIL_SISWA:
+            return messagebox.showwarning("Peringatan", "Belum ada data hasil ujian siswa yang masuk!")
+
+        fp = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV/Excel Files", "*.csv")], initialfile="Rekap_Hasil_CBT.csv")
+        if not fp: return
+
+        try:
+            with open(fp, mode='w', newline='', encoding='utf-8') as f:
+                writer = csv.writer(f, delimiter=',')
+                writer.writerow(["Nama Siswa", "Kelas", "Mata Pelajaran", "Token", "Skor Akhir", "Rincian Jawaban Siswa"])
+                
+                for d in HASIL_SISWA.values():
+                    rincian = []
+                    for id_soal, jwb in d['detail'].items():
+                        rincian.append(f"Soal {id_soal}: {jwb}")
+                    teks_rincian = " | ".join(rincian)
+                    
+                    writer.writerow([d['nama'], d['kelas'], d['mapel'], d['token'], f"{d['skor']:.2f}", teks_rincian])
+                    
+            messagebox.showinfo("Sukses", f"Hasil ujian berhasil diunduh!\n\nFile tersimpan di:\n{fp}\n\nSilakan upload ke Google Drive dan buka dengan Google Sheets.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Gagal mengunduh file:\n{e}")
+
+if __name__ == "__main__": 
     app = GuruApp()
     app.mainloop()
