@@ -3,7 +3,18 @@ from tkinter import ttk, messagebox, simpledialog
 import requests
 import base64
 import io
+import os
+import sys
 from PIL import Image, ImageTk
+
+# --- FUNGSI BACA FILE INTERNAL EXE ---
+def dapatkan_path_file(nama_file):
+    """Membaca file dari dalam bungkus EXE atau dari folder lokal"""
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, nama_file)
 
 # --- KONFIGURASI WARNA MODERN ---
 BG_UTAMA = "#f4f7f6"
@@ -38,9 +49,20 @@ class SiswaApp(tk.Tk):
     def setup_login(self):
         self.frame_login.pack(expand=True)
         
-        # Kartu Login (Putih)
         card = tk.Frame(self.frame_login, bg=BG_KARTU, padx=50, pady=40, relief="flat", bd=0)
         card.pack(pady=20)
+        
+        # --- KODE LOGO (Menggunakan logo.jpg) ---
+        path_logo = dapatkan_path_file("logo.jpg")
+        if os.path.exists(path_logo):
+            try:
+                img_logo = Image.open(path_logo)
+                img_logo = img_logo.resize((120, 120))
+                self.logo_img = ImageTk.PhotoImage(img_logo)
+                tk.Label(card, image=self.logo_img, bg=BG_KARTU).pack(pady=(0, 15))
+            except:
+                pass
+        # ----------------------------------------
         
         tk.Label(card, text="LOGIN UJIAN CBT", font=("Segoe UI", 28, "bold"), fg=WARNA_PRIMER, bg=BG_KARTU).pack(pady=(0, 30))
         
@@ -101,13 +123,11 @@ class SiswaApp(tk.Tk):
         soal = self.soal_data[self.current_idx]
         sid = str(soal['id'])
         
-        # 1. HEADER MODERN (Gelap)
         header = tk.Frame(self.frame_ujian, bg=WARNA_HEADER, padx=30, pady=15)
         header.pack(side='top', fill='x')
         tk.Label(header, text=f"👤 {self.nama_siswa}   |   📚 {self.mapel_info}", font=("Segoe UI", 14, "bold"), fg="white", bg=WARNA_HEADER).pack(side='left')
         tk.Label(header, text=f"Soal {self.current_idx + 1} / {len(self.soal_data)}", font=("Segoe UI", 16, "bold"), fg="#f1c40f", bg=WARNA_HEADER).pack(side='right')
         
-        # 2. FOOTER TOMBOL (Terang)
         footer = tk.Frame(self.frame_ujian, bg=BG_UTAMA, padx=40, pady=20)
         footer.pack(side='bottom', fill='x')
         
@@ -119,7 +139,6 @@ class SiswaApp(tk.Tk):
         else: 
             tk.Button(footer, text="Selesai & Kirim ✔", command=self.selesai, font=("Segoe UI", 14, "bold"), bg="#dc3545", fg="white", relief="flat", cursor="hand2", padx=20, pady=8).pack(side='right')
 
-        # 3. AREA SOAL (Kertas Putih)
         container = tk.Frame(self.frame_ujian, bg=BG_UTAMA, padx=40, pady=10)
         container.pack(side='top', fill='both', expand=True)
 
@@ -136,7 +155,6 @@ class SiswaApp(tk.Tk):
         scrollbar.pack(side="right", fill="y")
         canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-1*(e.delta/120)), "units"))
 
-        # KONTEN SOAL
         tk.Label(scroll_frame, text=soal['soal'], font=("Segoe UI", 16), fg=WARNA_TEKS, bg=BG_KARTU, wraplength=1000, justify='left').pack(anchor='w', pady=(0, 20))
         
         if soal.get('gambar'):

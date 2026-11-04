@@ -6,8 +6,18 @@ import threading
 import io
 import os
 import csv
+import sys
 from flask import Flask, request, jsonify
 from PIL import Image, ImageTk
+
+# --- FUNGSI BACA FILE INTERNAL EXE ---
+def dapatkan_path_file(nama_file):
+    """Membaca file dari dalam bungkus EXE atau dari folder lokal"""
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, nama_file)
 
 app_flask = Flask(__name__)
 
@@ -106,13 +116,14 @@ class GuruApp(tk.Tk):
         load_db()
         self.b64_image = ""
         
-        # --- HEADER & LOGO ---
+        # --- HEADER & LOGO DENGAN PATH INTERNAL ---
         header_frame = tk.Frame(self, bg="#ffffff", pady=10)
         header_frame.pack(fill='x', side='top')
         
-        if os.path.exists("logo.jpg"):
+        path_logo = dapatkan_path_file("logo.jpg")
+        if os.path.exists(path_logo):
             try:
-                img_logo = Image.open("logo.jpg")
+                img_logo = Image.open(path_logo)
                 img_logo = img_logo.resize((60, 60))
                 self.logo_img = ImageTk.PhotoImage(img_logo)
                 tk.Label(header_frame, image=self.logo_img, bg="#ffffff").pack(side='left', padx=(20, 10))
