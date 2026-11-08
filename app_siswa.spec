@@ -5,7 +5,7 @@ a = Analysis(
     ['app_siswa.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('logo.jpg', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -35,4 +35,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    uac_admin=True,
+    icon=['logo.ico'],
 )
