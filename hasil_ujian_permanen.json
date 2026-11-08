@@ -1,0 +1,58 @@
+{
+    "qqq_KERE": {
+        "nama": "qqq",
+        "kelas": "Uji coba",
+        "mapel": "B indo",
+        "token": "KERE",
+        "skor": 0.0,
+        "detail": {
+            "1": "D",
+            "2": "C"
+        }
+    },
+    "LL_KERE": {
+        "nama": "LL",
+        "kelas": "Uji coba",
+        "mapel": "B indo",
+        "token": "KERE",
+        "skor": 0.0,
+        "detail": {
+            "1": "B",
+            "2": "C"
+        }
+    },
+    "qqq_HARI BAIK": {
+        "nama": "qqq",
+        "kelas": "10",
+        "mapel": "Informatika",
+        "token": "HARI BAIK",
+        "skor": 3.0,
+        "detail": {
+            "1": "B",
+            "2": "C",
+            "3": "E",
+            "4": [
+                1,
+                2
+            ],
+            "5": [
+                "B",
+                "S",
+                "B",
+                "S"
+            ],
+            "6": "dwDWf",
+            "7": "feweFWF"
+        }
+    },
+    "LL_HARI BAIK": {
+        "nama": "LL",
+        "kelas": "10",
+        "mapel": "Informatika",
+        "token": "HARI BAIK",
+        "skor": 0.0,
+        "detail": {
+            "1": "A"
+        }
+    }
+}

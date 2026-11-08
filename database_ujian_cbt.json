@@ -1,0 +1,16 @@
+{
+    "proctor_password": "111",
+    "paket_ujian": {},
+    "akun_siswa": {
+        "111": {
+            "nama": "qqq",
+            "kelas": "10",
+            "password": "111"
+        },
+        "123": {
+            "nama": "LL",
+            "kelas": "10",
+            "password": "123"
+        }
+    }
+}

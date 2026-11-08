@@ -1,0 +1,4 @@
+Flask
+PyQt6
+requests
+keyboard
