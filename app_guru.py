@@ -694,7 +694,6 @@ class GuruApp(QMainWindow):
         self.txt_wacana.clear()
         self.txt_soal.clear()
         self.ent_sumber.clear()
-        self.sb_bobot.setValue(10.0)
         self.b64_image = ""
         self.lbl_img_status.setText("Tidak ada gambar")
         self.btn_simpan.setText("➕ SIMPAN SOAL BARU")
