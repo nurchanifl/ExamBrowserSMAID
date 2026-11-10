@@ -42,10 +42,12 @@ AKUN_SISWA = {}
 HASIL_SISWA = {}
 DAFTAR_FILE_DB = [] 
 
-# Memori Auto-Save & Hasil Permanen
 JAWABAN_SEMENTARA = {}
 AUTOSAVE_FILE = os.path.abspath("autosave_jawaban.json")
 HASIL_FILE = os.path.abspath("hasil_ujian_permanen.json")
+
+# Gembok file untuk mengamankan data dari request beruntun/bersamaan
+kunci_file = threading.Lock() 
 
 def load_autosave():
     global JAWABAN_SEMENTARA
@@ -81,7 +83,7 @@ def init_db():
             json.dump({"proctor_password": "admin123", "paket_ujian": {}, "akun_siswa": {}}, f)
     reload_all_dbs()
     load_autosave() 
-    load_hasil() # Muat hasil nilai ujian saat aplikasi guru dinyalakan
+    load_hasil() 
 
 def reload_all_dbs():
     global DATA_UJIAN, AKUN_SISWA, PROCTOR_PASSWORD
@@ -179,8 +181,10 @@ def autosave():
         kunci = f"{nis}_{token}"
         JAWABAN_SEMENTARA[kunci] = jawaban
         try:
-            with open(AUTOSAVE_FILE, 'w') as f:
-                json.dump(JAWABAN_SEMENTARA, f)
+            # Gunakan gembok agar penulisan JSON tidak bertabrakan saat 3+ siswa klik bersamaan
+            with kunci_file:
+                with open(AUTOSAVE_FILE, 'w') as f:
+                    json.dump(JAWABAN_SEMENTARA, f)
         except:
             pass
             
@@ -205,20 +209,19 @@ def submit_jawaban():
             elif s['tipe'] == 'BS' and isinstance(jwb, list) and jwb == s['kunci']: skor += bobot
             
     HASIL_SISWA[f"{nama}_{token}"] = {"nama": nama, "kelas": paket['kelas'], "mapel": paket['mapel'], "token": token, "skor": skor, "detail": d['jawaban']}
-    
-    # PERUBAHAN: Simpan hasil akhir secara permanen ke JSON
     save_hasil()
     
     return jsonify({"status": "sukses"})
 
 def run_server():
-    app_flask.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+    # threaded=True agar server Flask sanggup menangani request puluhan siswa serentak
+    app_flask.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False, threaded=True)
 
 # ================= GURU APP GUI =================
 class GuruApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Server Proktor CBT - SMA Islam Darussalam (Auto-Save Ready)")
+        self.setWindowTitle("Server Proktor CBT - SMA Islam Darussalam (Multithreading)")
         
         ikon_path = dapatkan_path_file("logo.jpg")
         if os.path.exists(ikon_path):
@@ -694,6 +697,7 @@ class GuruApp(QMainWindow):
         self.txt_wacana.clear()
         self.txt_soal.clear()
         self.ent_sumber.clear()
+        # Bobot tidak direset agar nyaman memasukkan banyak soal dengan bobot yang sama
         self.b64_image = ""
         self.lbl_img_status.setText("Tidak ada gambar")
         self.btn_simpan.setText("➕ SIMPAN SOAL BARU")
@@ -948,7 +952,6 @@ class GuruApp(QMainWindow):
         btn_analisis.setStyleSheet("background-color: #fd7e14; color: white; padding: 5px; font-weight: bold;")
         btn_analisis.clicked.connect(self.unduh_analisis_soal)
         
-        # PERUBAHAN: Tombol Hapus Hasil Ujian Permanen
         btn_hapus_hasil = QPushButton("🗑️ HAPUS HASIL UJIAN TERPILIH")
         btn_hapus_hasil.setStyleSheet("background-color: #e83e8c; color: white; padding: 5px; font-weight: bold;")
         btn_hapus_hasil.clicked.connect(self.hapus_hasil_ujian)
@@ -994,7 +997,6 @@ class GuruApp(QMainWindow):
             except Exception as e:
                 QMessageBox.warning(self, "Error", f"Gagal menghapus file: {e}")
 
-    # PERUBAHAN: Fungsi Hapus Hasil Ujian Permanen
     def hapus_hasil_ujian(self):
         filter_text = self.cb_filter_hasil.currentText()
         tanya = QMessageBox.question(self, "Konfirmasi Hapus", 

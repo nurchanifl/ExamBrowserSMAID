@@ -2,15 +2,85 @@
     "proctor_password": "111",
     "paket_ujian": {},
     "akun_siswa": {
-        "111": {
-            "nama": "qqq",
-            "kelas": "10",
-            "password": "111"
-        },
-        "123": {
-            "nama": "LL",
-            "kelas": "10",
+        "999": {
+            "nama": "M Faiz",
+            "kelas": "12",
             "password": "123"
+        },
+        "888": {
+            "nama": "Haifa",
+            "kelas": "12",
+            "password": "123"
+        },
+        "777": {
+            "nama": "Isna",
+            "kelas": "12",
+            "password": "123"
+        },
+        "0085055571": {
+            "nama": "Naila Annafi",
+            "kelas": "12",
+            "password": "8419137*"
+        },
+        "0095023718": {
+            "nama": "Isnaini Asih Triyana",
+            "kelas": "12",
+            "password": "8829942*"
+        },
+        "0092688940": {
+            "nama": "Syamsul Rizal Jaelani",
+            "kelas": "12",
+            "password": "8873626*"
+        },
+        "3082972143": {
+            "nama": "Najwa Aulia Azahra",
+            "kelas": "12",
+            "password": "8129418*"
+        },
+        "0086539575": {
+            "nama": "Haifa Humaira Putri Wardana",
+            "kelas": "12",
+            "password": "8927837*"
+        },
+        "30921910996": {
+            "nama": "Keysha Alfiansyah",
+            "kelas": "12",
+            "password": "8517134*"
+        },
+        "3097388612": {
+            "nama": "Kayana Tachiyyatul Zulfa",
+            "kelas": "12",
+            "password": "8426845*"
+        },
+        "3097582201": {
+            "nama": "Muhammad Faiz Nival Fahmi",
+            "kelas": "12",
+            "password": "8861293*"
+        },
+        "0089150588": {
+            "nama": "Kirani Laras Desvitasari",
+            "kelas": "12",
+            "password": "8248152*"
+        },
+        "00910997824": {
+            "nama": "Berlian Verdamara",
+            "kelas": "12",
+            "password": "8323547*"
+        },
+        "0091897686": {
+            "nama": "Nailul Fauziah",
+            "kelas": "12",
+            "password": "8762171*"
+        },
+        "3093810073": {
+            "nama": "Mela Putri Fadilah",
+            "kelas": "12",
+            "password": "8951326*"
+        },
+        "0093257785": {
+            "nama": "Malikha Fauzia Ramadhani",
+            "kelas": "12",
+            "password": "8581228*"
         }
     }
 }

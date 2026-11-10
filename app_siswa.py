@@ -3,8 +3,8 @@ import os
 import requests
 import base64
 import keyboard
-import ctypes # <--- Tambahan agar ikon terbaca di Taskbar Windows
-
+import ctypes
+import threading
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                              QLabel, QLineEdit, QPushButton, QMessageBox, QStackedWidget,
                              QScrollArea, QRadioButton, QCheckBox, QButtonGroup, QGridLayout,
@@ -32,24 +32,11 @@ class NetworkWorker(QThread):
 
     def run(self):
         try:
-            r = requests.post(self.url, json=self.payload, timeout=5)
+            r = requests.post(self.url, json=self.payload, timeout=15)
             data = r.json()
             self.finished.emit(data)
         except Exception as e:
             self.failed.emit(str(e))
-
-# ================= WORKER SILENT (AUTOSAVE) =================
-class SilentWorker(QThread):
-    def __init__(self, url, payload):
-        super().__init__()
-        self.url = url
-        self.payload = payload
-
-    def run(self):
-        try:
-            requests.post(self.url, json=self.payload, timeout=3)
-        except:
-            pass
 
 
 class SiswaApp(QMainWindow):
@@ -62,7 +49,6 @@ class SiswaApp(QMainWindow):
         if os.path.exists(ikon_path):
             self.setWindowIcon(QIcon(ikon_path))
             
-        # Memaksa Windows menampilkan ikon kita di Taskbar (bukan ikon Python)
         try:
             myappid = 'smaid.cbt.siswa.1.0'
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
@@ -94,7 +80,6 @@ class SiswaApp(QMainWindow):
         self.proctor_pwd = ""
         
         self.active_worker = None
-        self.autosave_worker = None 
 
         self.w_utama = QStackedWidget()
         self.setCentralWidget(self.w_utama)
@@ -171,22 +156,17 @@ class SiswaApp(QMainWindow):
         
         box = QWidget()
         box.setStyleSheet("background-color: white; border-radius: 10px; border: 1px solid #ccc;")
-        
-        # PERUBAHAN: Tinggi kotak diperbesar dari 420 menjadi 480 agar logo tidak tergencet
         box.setFixedSize(450, 480) 
         ly_box = QVBoxLayout(box)
         ly_box.setContentsMargins(30, 30, 30, 30)
         
         lbl_img = QLabel()
         lbl_img.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        # PERUBAHAN: Memastikan area gambar tidak dikompres oleh layout lain
         lbl_img.setMinimumHeight(80) 
         
         ikon_path = dapatkan_path_file("logo.jpg")
         if os.path.exists(ikon_path):
             pix = QPixmap(ikon_path)
-            # PERUBAHAN: Ukuran logo diperbesar dari 60x60 menjadi 85x85
             lbl_img.setPixmap(pix.scaled(85, 85, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
             ly_box.addWidget(lbl_img)
             
@@ -520,14 +500,20 @@ class SiswaApp(QMainWindow):
         self.update_warna_navigasi()
         self.kirim_autosave() 
 
+    # Multithreading Murni (Agar tidak crash saat AutoSave sibuk)
     def kirim_autosave(self):
         payload = {
             "nis": self.nis,
             "token": self.token,
             "jawaban": self.jawaban
         }
-        self.autosave_worker = SilentWorker(f"{self.server_ip}/api/autosave", payload)
-        self.autosave_worker.start()
+        threading.Thread(target=self.proses_kirim_autosave_bg, args=(payload,), daemon=True).start()
+
+    def proses_kirim_autosave_bg(self, payload):
+        try:
+            requests.post(f"{self.server_ip}/api/autosave", json=payload, timeout=3)
+        except:
+            pass
 
     def pindah_soal(self, delta):
         self.indeks_soal += delta
