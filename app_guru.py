@@ -5,14 +5,22 @@ import base64
 import csv
 import socket
 import threading
+import re
 from flask import Flask, request, jsonify
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                              QTabWidget, QLabel, QLineEdit, QPushButton, QComboBox, 
                              QTableWidget, QTableWidgetItem, QHeaderView, QDoubleSpinBox, 
                              QTextEdit, QFileDialog, QMessageBox, QGroupBox, QScrollArea,
-                             QFormLayout, QRadioButton, QCheckBox, QDialog, QAbstractItemView)
-from PyQt6.QtGui import QFont, QPixmap, QIcon
+                             QFormLayout, QRadioButton, QCheckBox, QDialog, QAbstractItemView,
+                             QToolBar)
+from PyQt6.QtGui import QFont, QPixmap, QIcon, QAction
 from PyQt6.QtCore import Qt, QTimer
+
+try:
+    import docx
+    DOCX_AVAILABLE = True
+except ImportError:
+    DOCX_AVAILABLE = False
 
 def dapatkan_path_file(nama_file):
     try:
@@ -21,7 +29,7 @@ def dapatkan_path_file(nama_file):
         base_path = os.path.abspath(".")
     return os.path.join(base_path, nama_file)
 
-# ================= CLASS KUSTOM =================
+# ================= KUSTOM KOMPONEN =================
 class AntiScrollComboBox(QComboBox):
     def wheelEvent(self, e): e.ignore()
 
@@ -29,12 +37,52 @@ class AntiScrollSpinBox(QDoubleSpinBox):
     def wheelEvent(self, e): e.ignore()
 
 class AntiScrollTableWidget(QTableWidget):
-    pass 
+    pass
 
-class AntiScrollTextEdit(QTextEdit):
-    pass 
+class RichTextEditor(QWidget):
+    def __init__(self):
+        super().__init__()
+        ly = QVBoxLayout(self)
+        ly.setContentsMargins(0, 0, 0, 0)
+        ly.setSpacing(2)
+        
+        self.toolbar = QToolBar()
+        self.editor = QTextEdit()
+        self.editor.setStyleSheet("font-family: 'Times New Roman'; font-size: 12pt; background-color: white; color: black; border: 1px solid gray;")
+        
+        btn_b = QAction("B", self)
+        btn_b.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+        btn_b.triggered.connect(lambda: self.editor.setFontWeight(QFont.Weight.Bold if self.editor.fontWeight() != QFont.Weight.Bold else QFont.Weight.Normal))
+        
+        btn_i = QAction("I", self)
+        btn_i.setFont(QFont("Arial", 10, QFont.Weight.Normal, True))
+        btn_i.triggered.connect(lambda: self.editor.setFontItalic(not self.editor.fontItalic()))
+        
+        btn_u = QAction("U", self)
+        font_u = QFont("Arial", 10)
+        font_u.setUnderline(True)
+        btn_u.setFont(font_u)
+        btn_u.triggered.connect(lambda: self.editor.setFontUnderline(not self.editor.fontUnderline()))
+        
+        self.cb_font = QComboBox()
+        self.cb_font.addItems(["Times New Roman", "Segoe UI", "Arial", "Courier New"])
+        self.cb_font.currentTextChanged.connect(self.editor.setFontFamily)
+        
+        self.toolbar.addAction(btn_b)
+        self.toolbar.addAction(btn_i)
+        self.toolbar.addAction(btn_u)
+        self.toolbar.addWidget(QLabel("  Font: "))
+        self.toolbar.addWidget(self.cb_font)
+        
+        ly.addWidget(self.toolbar)
+        ly.addWidget(self.editor)
+        
+    def toHtml(self): return self.editor.toHtml()
+    def setHtml(self, html): self.editor.setHtml(html)
+    def toPlainText(self): return self.editor.toPlainText()
+    def clear(self): self.editor.clear()
 
-# ================= FLASK SERVER & MULTI-FILE DB =================
+# ================= FLASK SERVER & DATABASE MULTI-FILE =================
 app_flask = Flask(__name__)
 PROCTOR_PASSWORD = "admin123"
 DATA_UJIAN = {}  
@@ -43,10 +91,9 @@ HASIL_SISWA = {}
 DAFTAR_FILE_DB = [] 
 
 JAWABAN_SEMENTARA = {}
+FLAG_RESET = set()
 AUTOSAVE_FILE = os.path.abspath("autosave_jawaban.json")
 HASIL_FILE = os.path.abspath("hasil_ujian_permanen.json")
-
-# Gembok file untuk mengamankan data dari request beruntun/bersamaan
 kunci_file = threading.Lock() 
 
 def load_autosave():
@@ -159,7 +206,8 @@ def auth_soal():
     if len(paket['soal']) == 0: return jsonify({"status": "error", "pesan": "Belum ada soal!"})
     
     kunci_autosave = f"{nis}_{token}"
-    jawaban_lama = JAWABAN_SEMENTARA.get(kunci_autosave, {})
+    jwb_data = JAWABAN_SEMENTARA.get(kunci_autosave, {})
+    jawaban_lama = jwb_data.get("jawaban", {}) if isinstance(jwb_data, dict) else jwb_data
 
     return jsonify({
         "status": "sukses", 
@@ -176,13 +224,17 @@ def autosave():
     nis = data.get('nis')
     token = data.get('token')
     jawaban = data.get('jawaban')
+    terjawab = data.get('terjawab', 0)
+    kunci = f"{nis}_{token}"
+    
+    if kunci in FLAG_RESET:
+        FLAG_RESET.remove(kunci)
+        return jsonify({"status": "sukses", "action": "reset"})
     
     if nis and token:
-        kunci = f"{nis}_{token}"
-        JAWABAN_SEMENTARA[kunci] = jawaban
         try:
-            # Gunakan gembok agar penulisan JSON tidak bertabrakan saat 3+ siswa klik bersamaan
             with kunci_file:
+                JAWABAN_SEMENTARA[kunci] = {"jawaban": jawaban, "terjawab": terjawab}
                 with open(AUTOSAVE_FILE, 'w') as f:
                     json.dump(JAWABAN_SEMENTARA, f)
         except:
@@ -210,18 +262,16 @@ def submit_jawaban():
             
     HASIL_SISWA[f"{nama}_{token}"] = {"nama": nama, "kelas": paket['kelas'], "mapel": paket['mapel'], "token": token, "skor": skor, "detail": d['jawaban']}
     save_hasil()
-    
     return jsonify({"status": "sukses"})
 
 def run_server():
-    # threaded=True agar server Flask sanggup menangani request puluhan siswa serentak
     app_flask.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False, threaded=True)
 
 # ================= GURU APP GUI =================
 class GuruApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Server Proktor CBT - SMA Islam Darussalam (Multithreading)")
+        self.setWindowTitle("Server Proktor CBT - SMA Islam Darussalam (Fitur Lengkap)")
         
         ikon_path = dapatkan_path_file("logo.jpg")
         if os.path.exists(ikon_path):
@@ -275,143 +325,12 @@ class GuruApp(QMainWindow):
         self.setup_tab_siswa()
         
         self.timer_hasil = QTimer()
-        self.timer_hasil.timeout.connect(self.update_tabel_hasil)
-        self.timer_hasil.start(2000)
+        self.timer_hasil.timeout.connect(self.update_tabel_hasil_dan_live)
+        self.timer_hasil.start(2500)
 
         threading.Thread(target=run_server, daemon=True).start()
 
-    def update_cb_file_db(self):
-        self.cb_file_db.blockSignals(True)
-        curr = self.cb_file_db.currentData()
-        self.cb_file_db.clear()
-        for fp in DAFTAR_FILE_DB:
-            self.cb_file_db.addItem(os.path.basename(fp), fp)
-        idx = self.cb_file_db.findData(curr)
-        if idx >= 0: 
-            self.cb_file_db.setCurrentIndex(idx)
-        elif self.cb_file_db.count() > 0:
-            self.cb_file_db.setCurrentIndex(0)
-        self.cb_file_db.blockSignals(False)
-        self.update_cb_paket()
-
-    def update_cb_paket(self):
-        self.cb_paket.blockSignals(True)
-        self.cb_paket.clear()
-        fpath_aktif = self.cb_file_db.currentData()
-        for unik_id, v in DATA_UJIAN.items():
-            if v.get('_file_asal') == fpath_aktif:
-                teks = f"{v['_pid_asli']} | {v['mapel']} (Kls: {v['kelas']}) - Token: {v['token']}"
-                self.cb_paket.addItem(teks, unik_id)
-        self.cb_paket.blockSignals(False)
-        self.muat_tabel_soal()
-
-    def setup_tab_siswa(self):
-        ly = QVBoxLayout(self.tab_siswa)
-        ly.setContentsMargins(10, 10, 10, 10)
-        ly_top = QHBoxLayout()
-        ly_top.addWidget(QLabel("<b>Daftar Akun Siswa (Sinkron ke Semua Database Aktif):</b>"))
-        ly_top.addStretch()
-        
-        btn_tambah = QPushButton("➕ Tambah")
-        btn_tambah.setStyleSheet("background-color: #28a745; color: white; font-weight: bold; padding: 6px 12px; border-radius: 4px;")
-        btn_tambah.clicked.connect(self.tambah_akun_manual)
-        btn_edit = QPushButton("✏️ Edit")
-        btn_edit.setStyleSheet("background-color: #ffc107; color: black; font-weight: bold; padding: 6px 12px; border-radius: 4px;")
-        btn_edit.clicked.connect(self.edit_akun_manual)
-        btn_hapus = QPushButton("🗑️ Hapus")
-        btn_hapus.setStyleSheet("background-color: #dc3545; color: white; font-weight: bold; padding: 6px 12px; border-radius: 4px;")
-        btn_hapus.clicked.connect(self.hapus_akun_manual)
-        
-        ly_top.addWidget(btn_tambah)
-        ly_top.addWidget(btn_edit)
-        ly_top.addWidget(btn_hapus)
-        ly.addLayout(ly_top)
-        
-        self.tabel_akun = AntiScrollTableWidget(0, 4)
-        self.tabel_akun.setStyleSheet("background-color: white; color: black; gridline-color: #ccc; selection-background-color: #cce5ff; selection-color: black;")
-        self.tabel_akun.setHorizontalHeaderLabels(["NIS / Username", "Nama Lengkap", "Kelas", "Password Akun"])
-        self.tabel_akun.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        self.tabel_akun.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        self.tabel_akun.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        ly.addWidget(self.tabel_akun)
-        self.update_tabel_akun()
-
-    def tambah_akun_manual(self):
-        d = QDialog(self)
-        d.setWindowTitle("Tambah Akun Siswa")
-        d.resize(350, 200)
-        d.setStyleSheet("background-color: white; color: black;")
-        ly = QFormLayout(d)
-        e_nis, e_nama, e_kelas, e_pass = QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()
-        for e in (e_nis, e_nama, e_kelas, e_pass): e.setStyleSheet("padding: 5px; border: 1px solid gray;")
-        ly.addRow("NIS / Username:", e_nis)
-        ly.addRow("Nama Lengkap:", e_nama)
-        ly.addRow("Kelas:", e_kelas)
-        ly.addRow("Password Login:", e_pass)
-        btn = QPushButton("Simpan Akun Baru")
-        btn.setStyleSheet("background-color: #0d6efd; color: white; font-weight: bold; padding: 8px;")
-        btn.clicked.connect(lambda: d.accept())
-        ly.addRow("", btn)
-        if d.exec() == QDialog.DialogCode.Accepted:
-            nis = e_nis.text().strip()
-            if not nis or not e_nama.text().strip() or not e_pass.text().strip(): return QMessageBox.warning(self, "Error", "Wajib diisi!")
-            if nis in AKUN_SISWA: return QMessageBox.warning(self, "Error", "NIS sudah terdaftar!")
-            AKUN_SISWA[nis] = {"nama": e_nama.text().strip(), "kelas": e_kelas.text().strip(), "password": e_pass.text().strip()}
-            save_all_dbs()
-            self.update_tabel_akun()
-
-    def edit_akun_manual(self):
-        baris = self.tabel_akun.currentRow()
-        if baris < 0: return QMessageBox.warning(self, "Peringatan", "Pilih salah satu akun di tabel.")
-        nis_lama = self.tabel_akun.item(baris, 0).text()
-        data_lama = AKUN_SISWA.get(nis_lama)
-        if not data_lama: return
-        d = QDialog(self)
-        d.setWindowTitle("Edit Akun Siswa")
-        d.resize(350, 200)
-        d.setStyleSheet("background-color: white; color: black;")
-        ly = QFormLayout(d)
-        e_nis = QLineEdit(nis_lama)
-        e_nama = QLineEdit(data_lama['nama'])
-        e_kelas = QLineEdit(data_lama['kelas'])
-        e_pass = QLineEdit(data_lama['password'])
-        for e in (e_nis, e_nama, e_kelas, e_pass): e.setStyleSheet("padding: 5px; border: 1px solid gray;")
-        ly.addRow("NIS / Username:", e_nis)
-        ly.addRow("Nama Lengkap:", e_nama)
-        ly.addRow("Kelas:", e_kelas)
-        ly.addRow("Password Login:", e_pass)
-        btn = QPushButton("Simpan Perubahan")
-        btn.setStyleSheet("background-color: #ffc107; color: black; font-weight: bold; padding: 8px;")
-        btn.clicked.connect(lambda: d.accept())
-        ly.addRow("", btn)
-        if d.exec() == QDialog.DialogCode.Accepted:
-            nis_baru = e_nis.text().strip()
-            if not nis_baru or not e_nama.text().strip() or not e_pass.text().strip(): return QMessageBox.warning(self, "Error", "Wajib diisi!")
-            if nis_baru != nis_lama and nis_baru in AKUN_SISWA: return QMessageBox.warning(self, "Error", "NIS baru dipakai akun lain!")
-            if nis_baru != nis_lama: del AKUN_SISWA[nis_lama]
-            AKUN_SISWA[nis_baru] = {"nama": e_nama.text().strip(), "kelas": e_kelas.text().strip(), "password": e_pass.text().strip()}
-            save_all_dbs()
-            self.update_tabel_akun()
-
-    def hapus_akun_manual(self):
-        baris = self.tabel_akun.currentRow()
-        if baris < 0: return QMessageBox.warning(self, "Peringatan", "Pilih salah satu akun di tabel.")
-        nis = self.tabel_akun.item(baris, 0).text()
-        tanya = QMessageBox.question(self, "Konfirmasi Hapus", f"Hapus akun siswa ini?\nNIS: {nis}")
-        if tanya == QMessageBox.StandardButton.Yes:
-            if nis in AKUN_SISWA:
-                del AKUN_SISWA[nis]
-                save_all_dbs()
-                self.update_tabel_akun()
-
-    def update_tabel_akun(self):
-        self.tabel_akun.setRowCount(len(AKUN_SISWA))
-        for i, (nis, data) in enumerate(AKUN_SISWA.items()):
-            self.tabel_akun.setItem(i, 0, QTableWidgetItem(nis))
-            self.tabel_akun.setItem(i, 1, QTableWidgetItem(data['nama']))
-            self.tabel_akun.setItem(i, 2, QTableWidgetItem(data['kelas']))
-            self.tabel_akun.setItem(i, 3, QTableWidgetItem(data['password'])) 
-
+    # ================= TAB 1: MANAJEMEN SOAL =================
     def setup_tab_soal(self):
         layout = QVBoxLayout(self.tab_soal)
         scroll = QScrollArea()
@@ -424,12 +343,12 @@ class GuruApp(QMainWindow):
         layout_scroll.setSpacing(15)
         layout_scroll.setContentsMargins(10, 10, 10, 10)
 
-        gb_db = QGroupBox("📁 Manajemen File Database")
+        gb_db = QGroupBox("📁 Manajemen File Database JSON")
         gb_db.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
         gb_db.setStyleSheet("background-color: white; color: black;")
         ly_db = QHBoxLayout(gb_db)
         
-        ly_db.addWidget(QLabel("Sedang Mengedit File:"))
+        ly_db.addWidget(QLabel("File JSON Aktif:"))
         self.cb_file_db = AntiScrollComboBox()
         self.cb_file_db.setStyleSheet("background-color: white; color: blue; font-weight: bold; border: 1px solid gray;")
         self.cb_file_db.setMinimumWidth(250)
@@ -447,7 +366,7 @@ class GuruApp(QMainWindow):
         ly_db.addWidget(btn_db_buka)
         layout_scroll.addWidget(gb_db)
 
-        gb_paket = QGroupBox("📦 Pilih / Buat Paket Ujian (Di dalam File Aktif)")
+        gb_paket = QGroupBox("📦 Pilih / Buat Paket Ujian")
         gb_paket.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
         gb_paket.setStyleSheet("background-color: white; color: black;")
         ly_paket = QHBoxLayout(gb_paket)
@@ -458,7 +377,7 @@ class GuruApp(QMainWindow):
         self.cb_paket.setMinimumWidth(400)
         ly_paket.addWidget(self.cb_paket)
         
-        btn_paket_baru = QPushButton("Buat Paket Baru")
+        btn_paket_baru = QPushButton("➕ Buat Paket Baru")
         btn_paket_baru.setStyleSheet("background-color: #28a745; color: white; padding: 5px;")
         btn_paket_baru.clicked.connect(self.buat_paket)
         ly_paket.addWidget(btn_paket_baru)
@@ -480,15 +399,20 @@ class GuruApp(QMainWindow):
         ly_list.addWidget(self.tabel_soal)
         
         ly_btn_tabel = QVBoxLayout()
-        btn_preview = QPushButton("🔍 Preview")
+        btn_import = QPushButton("📥 Import Word (.docx)")
+        btn_import.setStyleSheet("background-color: #28a745; color: white; font-weight: bold; padding: 6px;")
+        btn_import.clicked.connect(self.import_word)
+        btn_preview = QPushButton("🔍 Preview Soal")
         btn_preview.setStyleSheet("background-color: #17a2b8; color: white; padding: 5px;")
         btn_preview.clicked.connect(self.preview_soal)
-        btn_edit = QPushButton("✏️ Edit")
+        btn_edit = QPushButton("✏️ Edit Soal")
         btn_edit.setStyleSheet("background-color: #ffc107; color: black; padding: 5px;")
         btn_edit.clicked.connect(self.edit_soal)
-        btn_hapus = QPushButton("🗑️ Hapus")
+        btn_hapus = QPushButton("🗑️ Hapus Soal")
         btn_hapus.setStyleSheet("background-color: #dc3545; color: white; padding: 5px;")
         btn_hapus.clicked.connect(self.hapus_soal)
+        
+        ly_btn_tabel.addWidget(btn_import)
         ly_btn_tabel.addWidget(btn_preview)
         ly_btn_tabel.addWidget(btn_edit)
         ly_btn_tabel.addWidget(btn_hapus)
@@ -514,14 +438,12 @@ class GuruApp(QMainWindow):
         self.sb_bobot.setMaximum(100.0)
         ly_form.addRow("Bobot Poin:", self.sb_bobot)
         
-        self.txt_wacana = AntiScrollTextEdit()
-        self.txt_wacana.setStyleSheet("background-color: white; color: black; border: 1px solid gray;")
-        self.txt_wacana.setMaximumHeight(80)
+        self.txt_wacana = RichTextEditor()
+        self.txt_wacana.setMinimumHeight(140)
         ly_form.addRow("Wacana (Opsional):", self.txt_wacana)
         
-        self.txt_soal = AntiScrollTextEdit()
-        self.txt_soal.setStyleSheet("background-color: white; color: black; border: 1px solid gray;")
-        self.txt_soal.setMaximumHeight(80)
+        self.txt_soal = RichTextEditor()
+        self.txt_soal.setMinimumHeight(140)
         ly_form.addRow("Pertanyaan:", self.txt_soal)
         
         ly_img = QHBoxLayout()
@@ -616,6 +538,142 @@ class GuruApp(QMainWindow):
             lbl.setStyleSheet("color: blue; font-style: italic;")
             self.ly_dinamis.addRow("", lbl)
 
+    def import_word(self):
+        if not DOCX_AVAILABLE:
+            return QMessageBox.warning(self, "Library Belum Terpasang", "Fitur ini membutuhkan 'python-docx'.\nJalankan perintah: pip install python-docx")
+        
+        unik_id = self.cb_paket.currentData()
+        if not unik_id: 
+            return QMessageBox.warning(self, "Error", "Pilih Paket Ujian terlebih dahulu!")
+            
+        fp, _ = QFileDialog.getOpenFileName(self, "Import Word (.docx)", "", "Word Document (*.docx)")
+        if not fp: return
+        
+        try:
+            doc = docx.Document(fp)
+            soal_list = DATA_UJIAN[unik_id]['soal']
+            exist_ids = [x['id'] for x in soal_list]
+            next_id = max(exist_ids) + 1 if exist_ids else 1
+            
+            curr = None
+            mode_input = "biasa"
+            wacana_temp = []
+            soal_temp = []
+
+            for para in doc.paragraphs:
+                txt = para.text.strip()
+                
+                # EKSTRAK GAMBAR SEBAGAI INLINE HTML (Gambar akan menyatu dengan teks, bebas posisi)
+                kumpulan_gambar_html = ""
+                for run in para.runs:
+                    xml_str = run._element.xml
+                    if 'r:embed=' in xml_str or 'r:id=' in xml_str:
+                        match = re.search(r'(?:r:embed|r:id)="([^"]+)"', xml_str)
+                        if match:
+                            rel_id = match.group(1)
+                            if rel_id in doc.part.related_parts:
+                                part = doc.part.related_parts[rel_id]
+                                if "image" in part.content_type:
+                                    img_b64 = base64.b64encode(part.blob).decode('utf-8')
+                                    # Tambahkan tag <img> HTML langsung ke dalam teks dengan lebar maksimal 450px
+                                    kumpulan_gambar_html += f'<br><img src="data:image/png;base64,{img_b64}" width="450"><br>'
+                
+                # Deteksi awal nomor soal
+                if txt and txt[0].isdigit() and "." in txt[:4] and any(t in txt for t in ["[PG]", "[BS]", "[PGK]", "[ESSAY]"]):
+                    if curr: 
+                        curr['bacaan'] = "".join(wacana_temp)
+                        curr['soal'] = "".join(soal_temp)
+                        soal_list.append(curr)
+                        
+                    wacana_temp, soal_temp = [], []
+                    mode_input = "biasa"
+                    
+                    tipe = "PG"
+                    for t in ["PGK", "BS", "ESSAY", "PG"]:
+                        if f"[{t}]" in txt: 
+                            tipe = t
+                            break
+                        
+                    # Bersihkan teks dari awalan soal
+                    clean_txt = txt.split(".", 1)[1].replace(f"[{tipe}]", "").strip()
+                    
+                    curr = {
+                        "id": next_id, "tipe": tipe, "bobot": 10.0, 
+                        # Field 'gambar' dikosongkan karena gambar kini hidup menyatu di dalam HTML bacaan/soal
+                        "bacaan": "", "soal": "", "gambar": "", "sumber_gambar": "" 
+                    }
+                    if tipe == "PG": curr["opsi"], curr["kunci"] = {}, "A"
+                    elif tipe in ["PGK", "BS"]: curr["pernyataan"], curr["kunci"] = [], []
+                    next_id += 1
+                    
+                    if clean_txt:
+                        soal_temp.append(f"<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0;\">{clean_txt}</p>")
+                    if kumpulan_gambar_html:
+                        soal_temp.append(kumpulan_gambar_html)
+                        
+                elif curr:
+                    # Ubah [SUMBER: ...] menjadi tulisan miring berwarna abu-abu yang menyatu dengan teks
+                    if "[SUMBER:" in txt:
+                        sumber_teks = txt[txt.find("[SUMBER:") + 8 : txt.find("]")].strip()
+                        txt = txt.replace(txt[txt.find("[SUMBER:") : txt.find("]") + 1], f"<br><i style='color:gray; font-size:10pt;'>Sumber: {sumber_teks}</i><br>").strip()
+                        
+                    # Deteksi perpindahan target teks (Wacana atau Soal)
+                    if "[WACANA]" in txt:
+                        mode_input = "wacana"
+                        txt = txt.replace("[WACANA]", "").strip()
+                    elif "[SOAL]" in txt:
+                        mode_input = "soal"
+                        txt = txt.replace("[SOAL]", "").strip()
+                    
+                    is_kunci = txt.lower().startswith("kunci:")
+                    is_opsi = curr["tipe"] == "PG" and len(txt) > 2 and txt[0] in "ABCDE" and txt[1] in ".)"
+                    is_pernyataan = txt.startswith("-") and curr["tipe"] in ["BS", "PGK"]
+                    
+                    if is_opsi:
+                        curr["opsi"][txt[0].upper()] = txt[2:].strip()
+                        mode_input = "biasa"
+                        # Jika ada gambar nyasar sebaris dengan opsi, masukkan ke soal utama
+                        if kumpulan_gambar_html: soal_temp.append(kumpulan_gambar_html)
+                    elif is_kunci:
+                        curr["kunci"] = txt.split(":", 1)[1].strip().upper()
+                        mode_input = "biasa"
+                        if kumpulan_gambar_html: soal_temp.append(kumpulan_gambar_html)
+                    elif is_pernyataan:
+                        parts = txt.split("[")
+                        curr["pernyataan"].append(parts[0].replace("-", "").strip())
+                        if len(parts) > 1:
+                            val = parts[1].replace("]", "").strip().upper()
+                            if curr["tipe"] == "PGK" and val == "BENAR": curr["kunci"].append(len(curr["pernyataan"]) - 1)
+                            elif curr["tipe"] == "BS": curr["kunci"].append(val)
+                        mode_input = "biasa"
+                        if kumpulan_gambar_html: soal_temp.append(kumpulan_gambar_html)
+                    elif txt or kumpulan_gambar_html:
+                        # GABUNGKAN teks dan gambar yang ada di paragraf ini
+                        teks_gabungan = ""
+                        if txt:
+                            teks_gabungan += f"<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0;\">{txt}</p>"
+                        if kumpulan_gambar_html:
+                            teks_gabungan += kumpulan_gambar_html
+                            
+                        # Lempar ke penampungan sesuai posisinya (Wacana atau Soal)
+                        if mode_input == "wacana":
+                            wacana_temp.append(teks_gabungan)
+                        else:
+                            soal_temp.append(teks_gabungan)
+                            
+            # Simpan soal terakhir (penutup)
+            if curr:
+                curr['bacaan'] = "".join(wacana_temp)
+                curr['soal'] = "".join(soal_temp)
+                soal_list.append(curr)
+                
+            save_all_dbs()
+            self.muat_tabel_soal()
+            self.update_tabel_paket()
+            QMessageBox.information(self, "Sukses", "Impor Berhasil! Teks, Gambar, dan Sumber disisipkan persis sesuai urutan di MS Word.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Gagal membaca file Word:\n{str(e)}")
+
     def unggah_gambar(self):
         fp, _ = QFileDialog.getOpenFileName(self, "Pilih Gambar", "", "Image Files (*.png *.jpg *.jpeg)")
         if fp:
@@ -637,6 +695,24 @@ class GuruApp(QMainWindow):
         ly.addWidget(lbl)
         d.exec()
 
+    def update_cb_file_db(self):
+        self.cb_file_db.blockSignals(True)
+        self.cb_file_db.clear()
+        for fp in DAFTAR_FILE_DB: 
+            self.cb_file_db.addItem(os.path.basename(fp), fp)
+        self.cb_file_db.blockSignals(False)
+        self.update_cb_paket()
+
+    def update_cb_paket(self):
+        self.cb_paket.blockSignals(True)
+        self.cb_paket.clear()
+        fpath_aktif = self.cb_file_db.currentData()
+        for unik_id, v in DATA_UJIAN.items():
+            if v.get('_file_asal') == fpath_aktif:
+                self.cb_paket.addItem(f"{v['_pid_asli']} | {v['mapel']} - Token: {v['token']}", unik_id)
+        self.cb_paket.blockSignals(False)
+        self.muat_tabel_soal()
+
     def muat_tabel_soal(self):
         self.tabel_soal.setRowCount(0)
         unik_id = self.cb_paket.currentData()
@@ -647,8 +723,9 @@ class GuruApp(QMainWindow):
             self.tabel_soal.setItem(i, 0, QTableWidgetItem(str(s['id'])))
             self.tabel_soal.setItem(i, 1, QTableWidgetItem(s['tipe']))
             self.tabel_soal.setItem(i, 2, QTableWidgetItem(str(s.get('bobot', 10))))
-            teks = s['soal'][:50] + "..." if len(s['soal'])>50 else s['soal']
-            self.tabel_soal.setItem(i, 3, QTableWidgetItem(teks))
+            teks_bersih = re.sub('<[^<]+?>', '', s['soal'])
+            teks_preview = teks_bersih[:50] + "..." if len(teks_bersih)>50 else teks_bersih
+            self.tabel_soal.setItem(i, 3, QTableWidgetItem(teks_preview))
 
     def simpan_soal(self):
         unik_id = self.cb_paket.currentData()
@@ -664,8 +741,8 @@ class GuruApp(QMainWindow):
             
         ds = {
             "id": s_id, "tipe": t, "bobot": self.sb_bobot.value(),
-            "bacaan": self.txt_wacana.toPlainText().strip(),
-            "soal": self.txt_soal.toPlainText().strip(),
+            "bacaan": self.txt_wacana.toHtml(),
+            "soal": self.txt_soal.toHtml(),
             "gambar": self.b64_image, "sumber_gambar": self.ent_sumber.text().strip()
         }
         
@@ -690,14 +767,14 @@ class GuruApp(QMainWindow):
         self.batal_edit()
         self.muat_tabel_soal()
         self.update_tabel_paket()
-        QMessageBox.information(self, "Sukses", "Soal berhasil disimpan ke dalam file!")
+        QMessageBox.information(self, "Sukses", "Soal berhasil disimpan!")
 
     def batal_edit(self):
         self.edit_id = None
         self.txt_wacana.clear()
         self.txt_soal.clear()
         self.ent_sumber.clear()
-        # Bobot tidak direset agar nyaman memasukkan banyak soal dengan bobot yang sama
+        # Bobot tidak di-reset agar nyaman memasukkan banyak soal dengan bobot sama
         self.b64_image = ""
         self.lbl_img_status.setText("Tidak ada gambar")
         self.btn_simpan.setText("➕ SIMPAN SOAL BARU")
@@ -716,14 +793,18 @@ class GuruApp(QMainWindow):
         self.edit_id = s_id
         self.cb_tipe.setCurrentText(soal['tipe'])
         self.sb_bobot.setValue(soal.get('bobot', 10.0))
-        self.txt_wacana.setText(soal.get('bacaan', ''))
-        self.txt_soal.setText(soal['soal'])
+        
+        bacaan = soal.get('bacaan', '')
+        if "<p" in bacaan or "<html" in bacaan: self.txt_wacana.setHtml(bacaan)
+        else: self.txt_wacana.editor.setText(bacaan)
+        
+        tanya = soal['soal']
+        if "<p" in tanya or "<html" in tanya: self.txt_soal.setHtml(tanya)
+        else: self.txt_soal.editor.setText(tanya)
+        
         self.ent_sumber.setText(soal.get('sumber_gambar', ''))
         self.b64_image = soal.get('gambar', '')
-        if self.b64_image:
-            self.lbl_img_status.setText("Gambar ada ✅")
-        else:
-            self.lbl_img_status.setText("Tidak ada gambar")
+        self.lbl_img_status.setText("Gambar ada ✅" if self.b64_image else "Tidak ada gambar")
             
         self.ref_form()
         t = soal['tipe']
@@ -764,66 +845,66 @@ class GuruApp(QMainWindow):
         d.resize(900, 700)
         d.setStyleSheet("background-color: white; color: black;")
         ly = QVBoxLayout(d)
+        
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         w_scroll = QWidget()
         w_scroll.setStyleSheet("background-color: white; color: black;")
         ly_scroll = QVBoxLayout(w_scroll)
         ly_scroll.setSpacing(10)
+        ly_scroll.setContentsMargins(15, 15, 15, 50) 
         
         for s in soal_list:
             lbl_no = QLabel(f"<b>Soal No {s['id']} ({s['tipe']})</b> - Bobot: {s.get('bobot', 10.0)}")
             lbl_no.setStyleSheet("color: blue; font-size: 12pt;")
             ly_scroll.addWidget(lbl_no)
             
-            bacaan = s.get('bacaan', '').strip()
+            bacaan = s.get('bacaan', '').replace("<br>", "").replace("<p></p>", "").strip()
             if bacaan:
                 lbl_wacana = QLabel(f"<b>📄 Teks Bacaan:</b><br>{bacaan}")
                 lbl_wacana.setWordWrap(True)
-                lbl_wacana.setAlignment(Qt.AlignmentFlag.AlignJustify)
-                lbl_wacana.setStyleSheet("font-family: 'Segoe UI'; font-size: 11pt; padding: 10px; border: 1px solid blue; background-color: #f8f9fa; color: black;")
+                lbl_wacana.setStyleSheet("font-family: 'Times New Roman'; font-size: 11pt; padding: 10px; border: 1px solid blue; background-color: #f8f9fa;")
                 ly_scroll.addWidget(lbl_wacana)
-                if s.get('gambar'):
-                    lbl_g = QLabel()
-                    pix = QPixmap()
-                    pix.loadFromData(base64.b64decode(s['gambar']))
-                    lbl_g.setPixmap(pix.scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-                    ly_scroll.addWidget(lbl_g)
-                    if s.get('sumber_gambar'): ly_scroll.addWidget(QLabel(f"<i style='color: gray;'>Sumber: {s['sumber_gambar']}</i>"))
 
             lbl_soal = QLabel(s['soal'])
             lbl_soal.setWordWrap(True)
-            lbl_soal.setAlignment(Qt.AlignmentFlag.AlignJustify)
-            lbl_soal.setStyleSheet("font-family: 'Segoe UI'; font-size: 12pt; color: black; margin-top: 5px;")
+            lbl_soal.setStyleSheet("font-family: 'Times New Roman'; font-size: 12pt; margin-top: 5px;")
             ly_scroll.addWidget(lbl_soal)
 
-            if s.get('gambar') and not bacaan:
+            if s.get('gambar'):
                 lbl_g = QLabel()
                 pix = QPixmap()
                 pix.loadFromData(base64.b64decode(s['gambar']))
                 lbl_g.setPixmap(pix.scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
                 ly_scroll.addWidget(lbl_g)
-                if s.get('sumber_gambar'): ly_scroll.addWidget(QLabel(f"<i style='color: gray;'>Sumber: {s['sumber_gambar']}</i>"))
+                
+                # Munculkan Sumber Gambar di bawah Gambar
+                if s.get('sumber_gambar'):
+                    lbl_sumber = QLabel(f"<i>Sumber: {s.get('sumber_gambar')}</i>")
+                    lbl_sumber.setStyleSheet("color: gray; font-size: 10pt; font-family: 'Times New Roman';")
+                    ly_scroll.addWidget(lbl_sumber)
 
             if s['tipe'] == 'PG':
                 for k, v in s.get('opsi', {}).items():
                     warna = "green" if k == s.get('kunci') else "black"
-                    tebal = "bold" if k == s.get('kunci') else "normal"
                     lbl_opsi = QLabel(f"{k}. {v}")
                     lbl_opsi.setWordWrap(True)
-                    lbl_opsi.setStyleSheet(f"color: {warna}; font-weight: {tebal};")
+                    lbl_opsi.setStyleSheet(f"color: {warna}; font-family: 'Times New Roman';")
                     ly_scroll.addWidget(lbl_opsi)
             elif s['tipe'] in ['PGK', 'BS']:
                 for i, p in enumerate(s.get('pernyataan', [])):
                     if s['tipe'] == 'PGK':
-                        kunci_teks, warna = ("[BENAR]", "green") if i in s.get('kunci', []) else ("[SALAH]", "black")
+                        kunci_teks = "[BENAR]" if i in s.get('kunci', []) else "[SALAH]"
                     else:
-                        kunci_teks, warna = (f"[{s.get('kunci', [])[i] if i < len(s.get('kunci', [])) else ''}]", "green")
-                    lbl_p = QLabel(f"- {p}   {kunci_teks}")
+                        kunci_teks = f"[{s.get('kunci', [])[i]}]" if i < len(s.get('kunci', [])) else ""
+                    lbl_p = QLabel(f"- {p} {kunci_teks}")
                     lbl_p.setWordWrap(True)
-                    lbl_p.setStyleSheet(f"color: {warna}; font-weight: bold;")
+                    lbl_p.setStyleSheet("color: green; font-weight: bold; font-family: 'Times New Roman';")
                     ly_scroll.addWidget(lbl_p)
             ly_scroll.addWidget(QLabel("<hr>"))
+            
+        ly_scroll.addSpacing(40) 
+        
         scroll.setWidget(w_scroll)
         ly.addWidget(scroll)
         d.exec()
@@ -872,29 +953,46 @@ class GuruApp(QMainWindow):
             idx = self.cb_file_db.findData(fp_abs)
             if idx >= 0: self.cb_file_db.setCurrentIndex(idx)
             self.update_tabel_paket()
-            QMessageBox.information(self, "Sukses", "File berhasil dibuat dan ditambahkan ke daftar aktif!")
+            QMessageBox.information(self, "Sukses", "File berhasil dibuat!")
 
     def buka_file_db(self):
-        fps, _ = QFileDialog.getOpenFileNames(self, "Buka File JSON (Bisa Pilih Banyak File)", "", "JSON (*.json)")
+        fps, _ = QFileDialog.getOpenFileNames(self, "Buka File JSON", "", "JSON (*.json)")
         if fps:
             for fp in fps:
                 fp_abs = os.path.abspath(fp)
-                if fp_abs not in DAFTAR_FILE_DB:
-                    DAFTAR_FILE_DB.append(fp_abs)
+                if fp_abs not in DAFTAR_FILE_DB: DAFTAR_FILE_DB.append(fp_abs)
             reload_all_dbs()
             self.update_cb_file_db()
             self.update_tabel_paket()
             self.update_tabel_akun()
-            QMessageBox.information(self, "Sukses", f"{len(fps)} file database berhasil dimuat ke server!")
+            QMessageBox.information(self, "Sukses", f"{len(fps)} file database dimuat!")
 
+    # ================= TAB 2: KONTROL PROKTOR & LIVE MONITOR =================
+   # ================= TAB 2: KONTROL PROKTOR & LIVE MONITOR =================
     def setup_tab_proktor(self):
-        ly = QVBoxLayout(self.tab_proktor)
+        layout_tab = QVBoxLayout(self.tab_proktor)
+        
+        # 1. BUNGKUS DENGAN SCROLL AREA AGAR TIDAK TERGENCET
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+        
+        konten_scroll = QWidget()
+        konten_scroll.setStyleSheet("background-color: #f4f6f9; color: black;")
+        ly = QVBoxLayout(konten_scroll)
+        ly.setSpacing(15)
         ly.setContentsMargins(10, 10, 10, 10)
         
+        # --- GRUP 1: STATUS SERVER ---
+        gb_server = QGroupBox("🌐 Status Server & Keamanan")
+        gb_server.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
+        gb_server.setStyleSheet("background-color: white;")
+        ly_server = QVBoxLayout(gb_server)
+        
         ip = socket.gethostbyname(socket.gethostname())
-        lbl_ip = QLabel(f"🌐 IP SERVER PROKTOR: {ip}")
-        lbl_ip.setStyleSheet("color: red; font-size: 16pt; font-weight: bold;")
-        ly.addWidget(lbl_ip)
+        lbl_ip = QLabel(f"IP SERVER PROKTOR: {ip}")
+        lbl_ip.setStyleSheet("color: red; font-size: 14pt; font-weight: bold;")
+        ly_server.addWidget(lbl_ip)
         
         ly_pwd = QHBoxLayout()
         ly_pwd.addWidget(QLabel("Password Keluar Siswa:"))
@@ -907,9 +1005,15 @@ class GuruApp(QMainWindow):
         ly_pwd.addWidget(self.ent_pwd)
         ly_pwd.addWidget(btn_pwd)
         ly_pwd.addStretch()
-        ly.addLayout(ly_pwd)
+        ly_server.addLayout(ly_pwd)
+        ly.addWidget(gb_server)
         
-        ly.addWidget(QLabel("<b>Status Paket Ujian (Dari Semua File JSON yang Aktif)</b>"))
+        # --- GRUP 2: PAKET UJIAN ---
+        gb_paket = QGroupBox("📦 Status Paket Ujian Aktif")
+        gb_paket.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
+        gb_paket.setStyleSheet("background-color: white;")
+        ly_paket = QVBoxLayout(gb_paket)
+        
         self.tabel_paket = AntiScrollTableWidget(0, 7)
         self.tabel_paket.setStyleSheet("background-color: white; color: black; gridline-color: #ccc; selection-background-color: #cce5ff; selection-color: black;")
         self.tabel_paket.setHorizontalHeaderLabels(["File Sumber", "Mapel", "Kelas", "Token", "Jml Soal", "Status", "UnikID"])
@@ -917,18 +1021,17 @@ class GuruApp(QMainWindow):
         self.tabel_paket.setColumnHidden(6, True) 
         self.tabel_paket.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.tabel_paket.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        self.tabel_paket.setMinimumHeight(130)
-        ly.addWidget(self.tabel_paket)
+        self.tabel_paket.setMinimumHeight(120)
+        ly_paket.addWidget(self.tabel_paket)
         
         ly_btn_prok = QHBoxLayout()
-        btn_on = QPushButton("▶ AKTIFKAN UJIAN TERPILIH")
-        btn_on.setStyleSheet("background-color: green; color: white; padding: 5px;")
+        btn_on = QPushButton("▶ AKTIFKAN UJIAN")
+        btn_on.setStyleSheet("background-color: green; color: white; padding: 5px; font-weight: bold;")
         btn_on.clicked.connect(lambda: self.tog_ujian(True))
-        btn_off = QPushButton("⏸ TUTUP UJIAN TERPILIH")
-        btn_off.setStyleSheet("background-color: red; color: white; padding: 5px;")
+        btn_off = QPushButton("⏸ TUTUP UJIAN")
+        btn_off.setStyleSheet("background-color: red; color: white; padding: 5px; font-weight: bold;")
         btn_off.clicked.connect(lambda: self.tog_ujian(False))
-        
-        btn_reset_autosave = QPushButton("🧹 BERSIHKAN DATA AUTO-SAVE (SESI BARU)")
+        btn_reset_autosave = QPushButton("🧹 BERSIHKAN AUTO-SAVE SEMENTARA")
         btn_reset_autosave.setStyleSheet("background-color: #ffc107; color: black; padding: 5px; font-weight: bold;")
         btn_reset_autosave.clicked.connect(self.hapus_autosave)
         
@@ -937,97 +1040,123 @@ class GuruApp(QMainWindow):
         ly_btn_prok.addSpacing(15)
         ly_btn_prok.addWidget(btn_reset_autosave)
         ly_btn_prok.addStretch()
-        ly.addLayout(ly_btn_prok)
+        ly_paket.addLayout(ly_btn_prok)
+        ly.addWidget(gb_paket)
         
-        ly.addWidget(QLabel("<hr>"))
+        # --- GRUP 3: LIVE MONITOR ---
+        gb_live = QGroupBox("🟢 Live Monitor Progres Siswa (Real-Time)")
+        gb_live.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
+        gb_live.setStyleSheet("background-color: white;")
+        ly_live = QVBoxLayout(gb_live)
+        
+        self.tabel_live = AntiScrollTableWidget(0, 5)
+        self.tabel_live.setStyleSheet("background-color: white; color: black; gridline-color: #ccc; selection-background-color: #ffcccc; selection-color: black;")
+        self.tabel_live.setHorizontalHeaderLabels(["NIS", "Token", "Terjawab", "Total Soal", "Progres (%)"])
+        self.tabel_live.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
+        self.tabel_live.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.tabel_live.setMinimumHeight(150)
+        ly_live.addWidget(self.tabel_live)
+        
+        btn_kick = QPushButton("🔄 RESET / KICK SISWA TERPILIH KEMBALI KE LOGIN")
+        btn_kick.setStyleSheet("background-color: #dc3545; color: white; font-weight: bold; padding: 8px;")
+        btn_kick.clicked.connect(self.kick_siswa)
+        ly_live.addWidget(btn_kick)
+        ly.addWidget(gb_live)
+        
+        # --- GRUP 4: HASIL PERMANEN ---
+        gb_hasil = QGroupBox("💾 Rekap Hasil Ujian (Permanen)")
+        gb_hasil.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
+        gb_hasil.setStyleSheet("background-color: white;")
+        ly_hasil = QVBoxLayout(gb_hasil)
         
         ly_h_hasil = QHBoxLayout()
-        ly_h_hasil.addWidget(QLabel("<b>Live Monitor Hasil Siswa:</b>"))
-        
-        btn_csv = QPushButton("📥 UNDUH HASIL UJIAN")
-        btn_csv.setStyleSheet("background-color: #17a2b8; color: white; padding: 5px;")
+        btn_csv = QPushButton("📥 UNDUH HASIL CSV")
+        btn_csv.setStyleSheet("background-color: #17a2b8; color: white; padding: 5px; font-weight: bold;")
         btn_csv.clicked.connect(self.unduh_csv)
-        
-        btn_analisis = QPushButton("📊 UNDUH ANALISIS SOAL")
+        btn_analisis = QPushButton("📊 ANALISIS SOAL CSV")
         btn_analisis.setStyleSheet("background-color: #fd7e14; color: white; padding: 5px; font-weight: bold;")
         btn_analisis.clicked.connect(self.unduh_analisis_soal)
-        
-        btn_hapus_hasil = QPushButton("🗑️ HAPUS HASIL UJIAN TERPILIH")
+        btn_hapus_hasil = QPushButton("🗑️ HAPUS HASIL TERPILIH")
         btn_hapus_hasil.setStyleSheet("background-color: #e83e8c; color: white; padding: 5px; font-weight: bold;")
         btn_hapus_hasil.clicked.connect(self.hapus_hasil_ujian)
 
-        ly_h_hasil.addStretch()
         ly_h_hasil.addWidget(btn_csv)
         ly_h_hasil.addWidget(btn_analisis)
         ly_h_hasil.addWidget(btn_hapus_hasil)
-        ly.addLayout(ly_h_hasil)
+        ly_h_hasil.addStretch()
+        ly_hasil.addLayout(ly_h_hasil)
         
         ly_h_filter = QHBoxLayout()
-        ly_h_filter.addStretch()
         ly_h_filter.addWidget(QLabel("Filter Paket:"))
         self.cb_filter_hasil = AntiScrollComboBox()
         self.cb_filter_hasil.setStyleSheet("background-color: white; color: black; border: 1px solid gray; padding: 2px;")
         self.cb_filter_hasil.addItem("Semua Paket dari Semua File")
         self.cb_filter_hasil.currentTextChanged.connect(self.update_tabel_hasil_langsung)
+        self.cb_filter_hasil.setMinimumWidth(300)
         ly_h_filter.addWidget(self.cb_filter_hasil)
-        ly.addLayout(ly_h_filter)
+        ly_h_filter.addStretch()
+        ly_hasil.addLayout(ly_h_filter)
 
         self.tabel_hasil = AntiScrollTableWidget(0, 4)
-        self.tabel_hasil.setStyleSheet("background-color: white; color: black; gridline-color: #ccc;")
-        self.tabel_hasil.setHorizontalHeaderLabels(["Nama", "Kelas", "Mapel", "Skor"])
+        self.tabel_hasil.setStyleSheet("background-color: white; color: black; gridline-color: #ccc; selection-background-color: #cce5ff; selection-color: black;")
+        self.tabel_hasil.setHorizontalHeaderLabels(["Nama", "Kelas", "Mapel", "Skor Akhir"])
         self.tabel_hasil.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         self.tabel_hasil.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.tabel_hasil.setMinimumHeight(180)
         self.tabel_hasil.cellDoubleClicked.connect(self.cek_detail_essay)
-        ly.addWidget(self.tabel_hasil)
+        ly_hasil.addWidget(self.tabel_hasil)
+        
+        ly.addWidget(gb_hasil)
+
+        # PASANG SCROLL KE LAYOUT TAB
+        scroll.setWidget(konten_scroll)
+        layout_tab.addWidget(scroll)
         
         self.update_tabel_paket()
 
+    def kick_siswa(self):
+        baris = self.tabel_live.currentRow()
+        if baris < 0: return QMessageBox.warning(self, "Peringatan", "Pilih siswa dari tabel Live Monitor.")
+        nis = self.tabel_live.item(baris, 0).text()
+        token = self.tabel_live.item(baris, 1).text()
+        kunci = f"{nis}_{token}"
+        
+        tanya = QMessageBox.question(self, "Konfirmasi Reset", f"Keluarkan NIS {nis} kembali ke Menu Login secara remote?")
+        if tanya == QMessageBox.StandardButton.Yes:
+            FLAG_RESET.add(kunci)
+            QMessageBox.information(self, "Info", f"Sinyal Reset dikirim. Laptop siswa {nis} akan kembali ke Login dalam 3 detik.")
+
     def hapus_autosave(self):
-        tanya = QMessageBox.question(self, "Konfirmasi Reset Auto-Save", 
-                                     "Tindakan ini akan menghapus riwayat Auto-Save siswa yang sedang berjalan.\n\n"
-                                     "Lakukan ini HANYA JIKA Anda akan memulai ujian/sesi yang baru.\n\nApakah Anda yakin?", 
-                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        tanya = QMessageBox.question(self, "Konfirmasi", "Bersihkan seluruh data Auto-Save untuk sesi baru?")
         if tanya == QMessageBox.StandardButton.Yes:
             global JAWABAN_SEMENTARA
             JAWABAN_SEMENTARA.clear()
             try:
-                if os.path.exists(AUTOSAVE_FILE):
-                    os.remove(AUTOSAVE_FILE)
-                QMessageBox.information(self, "Sukses", "Data Auto-Save berhasil dibersihkan! Aplikasi siap untuk sesi ujian baru.")
+                if os.path.exists(AUTOSAVE_FILE): os.remove(AUTOSAVE_FILE)
+                QMessageBox.information(self, "Sukses", "Data Auto-Save dibersihkan!")
             except Exception as e:
-                QMessageBox.warning(self, "Error", f"Gagal menghapus file: {e}")
+                QMessageBox.warning(self, "Error", str(e))
 
     def hapus_hasil_ujian(self):
         filter_text = self.cb_filter_hasil.currentText()
-        tanya = QMessageBox.question(self, "Konfirmasi Hapus", 
-                                     f"Yakin ingin menghapus data hasil ujian untuk:\n{filter_text}?\n\nPastikan Anda sudah mengunduh CSV-nya karena data akan hilang permanen!", 
-                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-        if tanya == QMessageBox.StandardButton.Yes:
+        if QMessageBox.question(self, "Hapus Hasil", f"Hapus hasil ujian untuk: {filter_text}?") == QMessageBox.StandardButton.Yes:
             global HASIL_SISWA
-            if filter_text == "Semua Paket dari Semua File":
-                HASIL_SISWA.clear()
+            if filter_text == "Semua Paket dari Semua File": HASIL_SISWA.clear()
             else:
-                kunci_hapus = []
-                for k, d in HASIL_SISWA.items():
-                    kategori = f"{d['mapel']} - Kls {d['kelas']} ({d['token']})"
-                    if kategori == filter_text:
-                        kunci_hapus.append(k)
-                for k in kunci_hapus:
-                    del HASIL_SISWA[k]
-            
+                kunci_hapus = [k for k, d in HASIL_SISWA.items() if f"{d['mapel']} - Kls {d['kelas']} ({d['token']})" == filter_text]
+                for k in kunci_hapus: del HASIL_SISWA[k]
             save_hasil()
-            self.update_tabel_hasil()
-            QMessageBox.information(self, "Sukses", "Data hasil ujian berhasil dihapus.")
+            self.update_tabel_hasil_dan_live()
 
     def simpan_pwd(self):
         global PROCTOR_PASSWORD
         PROCTOR_PASSWORD = self.ent_pwd.text().strip()
         save_all_dbs()
-        QMessageBox.information(self, "Sukses", "Password diupdate ke semua file aktif!")
+        QMessageBox.information(self, "Sukses", "Password diupdate!")
 
     def tog_ujian(self, status):
         brs = self.tabel_paket.currentRow()
-        if brs < 0: return QMessageBox.warning(self, "Peringatan", "Klik salah satu paket di tabel terlebih dahulu.")
+        if brs < 0: return QMessageBox.warning(self, "Peringatan", "Pilih paket terlebih dahulu.")
         unik_id = self.tabel_paket.item(brs, 6).text()
         DATA_UJIAN[unik_id]['aktif'] = status
         save_all_dbs()
@@ -1036,8 +1165,7 @@ class GuruApp(QMainWindow):
     def update_tabel_paket(self):
         self.tabel_paket.setRowCount(len(DATA_UJIAN))
         for i, (unik_id, v) in enumerate(DATA_UJIAN.items()):
-            file_nama = os.path.basename(v['_file_asal'])
-            self.tabel_paket.setItem(i, 0, QTableWidgetItem(file_nama))
+            self.tabel_paket.setItem(i, 0, QTableWidgetItem(os.path.basename(v['_file_asal'])))
             self.tabel_paket.setItem(i, 1, QTableWidgetItem(v['mapel']))
             self.tabel_paket.setItem(i, 2, QTableWidgetItem(v['kelas']))
             self.tabel_paket.setItem(i, 3, QTableWidgetItem(v['token']))
@@ -1056,16 +1184,30 @@ class GuruApp(QMainWindow):
         self.cb_filter_hasil.blockSignals(False)
 
     def update_tabel_hasil_langsung(self):
-        self.update_tabel_hasil()
+        self.update_tabel_hasil_dan_live()
 
-    def update_tabel_hasil(self):
+    def update_tabel_hasil_dan_live(self):
+        # Update Live Monitor
+        self.tabel_live.setRowCount(len(JAWABAN_SEMENTARA))
+        for i, (kunci, data) in enumerate(JAWABAN_SEMENTARA.items()):
+            parts = kunci.split("_", 1)
+            nis = parts[0]
+            token = parts[1] if len(parts) > 1 else ""
+            paket = next((p for p in DATA_UJIAN.values() if p['token'] == token), None)
+            total = len(paket['soal']) if paket else 0
+            
+            terjawab = data.get("terjawab", 0) if isinstance(data, dict) else (len([k for k in data.keys() if data[k]]) if isinstance(data, dict) else 0)
+            pct = f"{(terjawab/total)*100:.0f}%" if total > 0 else "0%"
+            
+            self.tabel_live.setItem(i, 0, QTableWidgetItem(nis))
+            self.tabel_live.setItem(i, 1, QTableWidgetItem(token))
+            self.tabel_live.setItem(i, 2, QTableWidgetItem(str(terjawab)))
+            self.tabel_live.setItem(i, 3, QTableWidgetItem(str(total)))
+            self.tabel_live.setItem(i, 4, QTableWidgetItem(pct))
+
+        # Update Hasil Permanen
         filter_text = self.cb_filter_hasil.currentText()
-        data_filtered = []
-        for k, d in HASIL_SISWA.items():
-            kategori = f"{d['mapel']} - Kls {d['kelas']} ({d['token']})"
-            if filter_text == "Semua Paket dari Semua File" or filter_text == kategori:
-                data_filtered.append(d)
-                
+        data_filtered = [d for k, d in HASIL_SISWA.items() if filter_text == "Semua Paket dari Semua File" or f"{d['mapel']} - Kls {d['kelas']} ({d['token']})" == filter_text]
         self.tabel_hasil.setRowCount(len(data_filtered))
         for i, d in enumerate(data_filtered):
             self.tabel_hasil.setItem(i, 0, QTableWidgetItem(d['nama']))
@@ -1090,7 +1232,7 @@ class GuruApp(QMainWindow):
         ly.addWidget(lbl)
         txt = QTextEdit()
         txt.setReadOnly(True)
-        txt.setStyleSheet("background-color: #f8f9fa; color: black; font-family: 'Segoe UI'; font-size: 11pt;")
+        txt.setStyleSheet("background-color: #f8f9fa; color: black; font-family: 'Times New Roman'; font-size: 11pt;")
         
         for soal in (p['soal'] if p else []):
             tipe = soal['tipe']
@@ -1098,7 +1240,7 @@ class GuruApp(QMainWindow):
             jwb = d['detail'].get(sid, '[Tidak Dijawab]')
             kunci = soal.get('kunci', '')
             
-            html = f"<b>Soal No {soal['id']} ({tipe}) - Poin: {soal.get('bobot', 10):.2f}</b><br>"
+            html = f"<b>Soal No {soal['id']} ({tipe}) - Bobot: {soal.get('bobot', 10):.2f}</b><br>"
             if soal.get('bacaan'): html += f"<i>Teks Bacaan: {soal['bacaan']}</i><br><br>"
             html += f"Tanya: {soal['soal']}<br>"
             
@@ -1118,16 +1260,10 @@ class GuruApp(QMainWindow):
 
     def unduh_csv(self):
         filter_text = self.cb_filter_hasil.currentText()
-        data_filtered = []
-        for k, d in HASIL_SISWA.items():
-            kategori = f"{d['mapel']} - Kls {d['kelas']} ({d['token']})"
-            if filter_text == "Semua Paket dari Semua File" or filter_text == kategori:
-                data_filtered.append(d)
-                
-        if not data_filtered: return QMessageBox.warning(self, "Peringatan", "Belum ada hasil ujian yang bisa diunduh.")
-        nama_file_default = "Rekap_CBT_Semua.csv" if filter_text == "Semua Paket dari Semua File" else f"Hasil_{filter_text.split(' - ')[0].replace(' ', '_')}.csv"
-
-        fp, _ = QFileDialog.getSaveFileName(self, "Simpan CSV Hasil", nama_file_default, "CSV (*.csv)")
+        data_filtered = [d for k, d in HASIL_SISWA.items() if filter_text == "Semua Paket dari Semua File" or f"{d['mapel']} - Kls {d['kelas']} ({d['token']})" == filter_text]
+        if not data_filtered: return QMessageBox.warning(self, "Peringatan", "Tidak ada data untuk diunduh.")
+        
+        fp, _ = QFileDialog.getSaveFileName(self, "Simpan CSV Hasil", "Rekap_Nilai_CBT.csv", "CSV (*.csv)")
         if not fp: return
         try:
             with open(fp, mode='w', newline='', encoding='utf-8') as f:
@@ -1139,84 +1275,155 @@ class GuruApp(QMainWindow):
                     row = [d['nama'], d['kelas'], d['mapel'], d['token'], f"{d['skor']:.2f}"]
                     for i in range(1, max_soal + 1): row.append(d['detail'].get(str(i), "-"))
                     writer.writerow(row)
-            QMessageBox.information(self, "Sukses", f"Nilai berhasil disimpan ke:\n{os.path.basename(fp)}")
+            QMessageBox.information(self, "Sukses", f"Nilai disimpan ke:\n{os.path.basename(fp)}")
         except Exception as e: QMessageBox.critical(self, "Error", str(e))
 
     def unduh_analisis_soal(self):
         filter_text = self.cb_filter_hasil.currentText()
         if filter_text == "Semua Paket dari Semua File":
-            return QMessageBox.warning(self, "Peringatan", "Silakan pilih salah satu mata pelajaran spesifik di kotak 'Filter Paket' terlebih dahulu untuk mengunduh laporan analisis soal.")
+            return QMessageBox.warning(self, "Peringatan", "Pilih salah satu paket di Filter Paket terlebih dahulu.")
             
-        data_filtered = []
-        token_paket = ""
-        for k, d in HASIL_SISWA.items():
-            kategori = f"{d['mapel']} - Kls {d['kelas']} ({d['token']})"
-            if kategori == filter_text:
-                data_filtered.append(d)
-                token_paket = d['token']
-                
-        if not data_filtered:
-            return QMessageBox.warning(self, "Peringatan", "Belum ada siswa yang menyelesaikan ujian paket ini.")
-            
-        paket = next((v for v in DATA_UJIAN.values() if v['token'] == token_paket), None)
-        if not paket:
-            return QMessageBox.warning(self, "Error", "Data master paket soal tidak ditemukan.")
-            
-        nama_file_default = f"Analisis_Soal_{paket['mapel'].replace(' ', '_')}_{paket['kelas']}.csv"
-        fp, _ = QFileDialog.getSaveFileName(self, "Simpan Analisis Soal CSV", nama_file_default, "CSV (*.csv)")
-        if not fp: return
+        data_filtered = [d for k, d in HASIL_SISWA.items() if f"{d['mapel']} - Kls {d['kelas']} ({d['token']})" == filter_text]
+        if not data_filtered: return QMessageBox.warning(self, "Peringatan", "Belum ada siswa yang menyelesaikan paket ini.")
         
+        token_paket = data_filtered[0]['token']
+        paket = next((v for v in DATA_UJIAN.values() if v['token'] == token_paket), None)
+        if not paket: return
+            
+        fp, _ = QFileDialog.getSaveFileName(self, "Simpan Analisis CSV", f"Analisis_{paket['mapel']}.csv", "CSV (*.csv)")
+        if not fp: return
         try:
             with open(fp, mode='w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f, delimiter=';')
-                writer.writerow(["No Soal", "Tipe Soal", "Pertanyaan / Detail Pernyataan", "Jml Menjawab Benar", "Jml Menjawab Salah", "% Keberhasilan"])
-                
+                writer.writerow(["No Soal", "Tipe Soal", "Pertanyaan", "Jml Benar", "Jml Salah", "% Keberhasilan"])
                 total_siswa = len(data_filtered)
-                
                 for s in paket['soal']:
                     sid = str(s['id'])
-                    tipe = s['tipe']
-                    tanya_singkat = s['soal'][:60] + "..." if len(s['soal']) > 60 else s['soal']
-                    
-                    if tipe == 'PG':
-                        benar, salah = 0, 0
-                        for d in data_filtered:
-                            jwb = d['detail'].get(sid)
-                            if jwb == s.get('kunci'): benar += 1
-                            else: salah += 1
+                    tanya_singkat = re.sub('<[^<]+?>', '', s['soal'])[:60]
+                    if s['tipe'] == 'PG':
+                        benar = sum(1 for d in data_filtered if d['detail'].get(sid) == s.get('kunci'))
+                        salah = total_siswa - benar
                         pct = f"{(benar/total_siswa)*100:.1f}%" if total_siswa > 0 else "0%"
-                        writer.writerow([sid, tipe, tanya_singkat, benar, salah, pct])
-                        
-                    elif tipe in ['PGK', 'BS']:
-                        writer.writerow([sid, tipe, tanya_singkat, "", "", ""])
-                        for i, p_teks in enumerate(s.get('pernyataan', [])):
-                            benar_stmt, salah_stmt = 0, 0
-                            for d in data_filtered:
-                                jwb = d['detail'].get(sid)
-                                if not isinstance(jwb, list):
-                                    salah_stmt += 1
-                                    continue
-                                
-                                if tipe == 'PGK':
-                                    cek_siswa = i in jwb
-                                    cek_kunci = i in s.get('kunci', [])
-                                    if cek_siswa == cek_kunci: benar_stmt += 1
-                                    else: salah_stmt += 1
-                                elif tipe == 'BS':
-                                    if i < len(jwb) and i < len(s.get('kunci', [])) and jwb[i] == s['kunci'][i]:
-                                        benar_stmt += 1
-                                    else:
-                                        salah_stmt += 1
-                            pct = f"{(benar_stmt/total_siswa)*100:.1f}%" if total_siswa > 0 else "0%"
-                            p_singkat = p_teks[:50] + "..." if len(p_teks) > 50 else p_teks
-                            writer.writerow(["", "", f" - Pernyataan: {p_singkat}", benar_stmt, salah_stmt, pct])
-                            
-                    elif tipe == 'ESSAY':
-                        writer.writerow([sid, tipe, tanya_singkat, "Dinilai Manual", "Dinilai Manual", "-"])
-                        
-            QMessageBox.information(self, "Sukses", f"Laporan Analisis Soal berhasil di-generate!\nDisimpan ke: {os.path.basename(fp)}")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Gagal mengunduh analisis: {str(e)}")
+                        writer.writerow([sid, s['tipe'], tanya_singkat, benar, salah, pct])
+                    elif s['tipe'] == 'ESSAY':
+                        writer.writerow([sid, s['tipe'], tanya_singkat, "Manual", "Manual", "-"])
+            QMessageBox.information(self, "Sukses", f"Analisis disimpan ke:\n{os.path.basename(fp)}")
+        except Exception as e: QMessageBox.critical(self, "Error", str(e))
+
+    # ================= TAB 3: DATA AKUN SISWA =================
+    def setup_tab_siswa(self):
+        ly = QVBoxLayout(self.tab_siswa)
+        ly.setContentsMargins(10, 10, 10, 10)
+        
+        ly_top = QHBoxLayout()
+        ly_top.addWidget(QLabel("<b>Daftar Akun Siswa (Tersinkron ke Semua File JSON):</b>"))
+        ly_top.addStretch()
+        
+        btn_tambah = QPushButton("➕ Tambah Akun")
+        btn_tambah.setStyleSheet("background-color: #28a745; color: white; font-weight: bold; padding: 6px 12px;")
+        btn_tambah.clicked.connect(self.tambah_akun_manual)
+        
+        btn_edit = QPushButton("✏️ Edit Akun")
+        btn_edit.setStyleSheet("background-color: #ffc107; color: black; font-weight: bold; padding: 6px 12px;")
+        btn_edit.clicked.connect(self.edit_akun_manual)
+        
+        btn_hapus = QPushButton("🗑️ Hapus Akun")
+        btn_hapus.setStyleSheet("background-color: #dc3545; color: white; font-weight: bold; padding: 6px 12px;")
+        btn_hapus.clicked.connect(self.hapus_akun_manual)
+        
+        ly_top.addWidget(btn_tambah)
+        ly_top.addWidget(btn_edit)
+        ly_top.addWidget(btn_hapus)
+        ly.addLayout(ly_top)
+        
+        self.tabel_akun = AntiScrollTableWidget(0, 4)
+        self.tabel_akun.setStyleSheet("background-color: white; color: black; gridline-color: #ccc;")
+        self.tabel_akun.setHorizontalHeaderLabels(["NIS / Username", "Nama Lengkap", "Kelas", "Password Akun"])
+        self.tabel_akun.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.tabel_akun.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.tabel_akun.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        ly.addWidget(self.tabel_akun)
+        self.update_tabel_akun()
+
+    def tambah_akun_manual(self):
+        d = QDialog(self)
+        d.setWindowTitle("Tambah Akun Siswa Baru")
+        d.resize(350, 200)
+        d.setStyleSheet("background-color: white; color: black;")
+        ly = QFormLayout(d)
+        e_nis, e_nama, e_kelas, e_pass = QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()
+        for e in (e_nis, e_nama, e_kelas, e_pass): e.setStyleSheet("padding: 5px; border: 1px solid gray;")
+        ly.addRow("NIS / Username:", e_nis)
+        ly.addRow("Nama Lengkap:", e_nama)
+        ly.addRow("Kelas:", e_kelas)
+        ly.addRow("Password Login:", e_pass)
+        btn = QPushButton("Simpan Akun")
+        btn.setStyleSheet("background-color: #0d6efd; color: white; font-weight: bold; padding: 8px;")
+        btn.clicked.connect(lambda: d.accept())
+        ly.addRow("", btn)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            nis = e_nis.text().strip()
+            if not nis or not e_nama.text().strip() or not e_pass.text().strip(): 
+                return QMessageBox.warning(self, "Error", "Wajib mengisi semua kolom!")
+            if nis in AKUN_SISWA: 
+                return QMessageBox.warning(self, "Error", "NIS ini sudah terdaftar!")
+            AKUN_SISWA[nis] = {"nama": e_nama.text().strip(), "kelas": e_kelas.text().strip(), "password": e_pass.text().strip()}
+            save_all_dbs()
+            self.update_tabel_akun()
+
+    def edit_akun_manual(self):
+        baris = self.tabel_akun.currentRow()
+        if baris < 0: return QMessageBox.warning(self, "Peringatan", "Pilih salah satu akun di tabel.")
+        nis_lama = self.tabel_akun.item(baris, 0).text()
+        data_lama = AKUN_SISWA.get(nis_lama)
+        if not data_lama: return
+        
+        d = QDialog(self)
+        d.setWindowTitle("Edit Akun Siswa")
+        d.resize(350, 200)
+        d.setStyleSheet("background-color: white; color: black;")
+        ly = QFormLayout(d)
+        e_nis = QLineEdit(nis_lama)
+        e_nama = QLineEdit(data_lama['nama'])
+        e_kelas = QLineEdit(data_lama['kelas'])
+        e_pass = QLineEdit(data_lama['password'])
+        for e in (e_nis, e_nama, e_kelas, e_pass): e.setStyleSheet("padding: 5px; border: 1px solid gray;")
+        ly.addRow("NIS / Username:", e_nis)
+        ly.addRow("Nama Lengkap:", e_nama)
+        ly.addRow("Kelas:", e_kelas)
+        ly.addRow("Password Login:", e_pass)
+        btn = QPushButton("Simpan Perubahan")
+        btn.setStyleSheet("background-color: #ffc107; color: black; font-weight: bold; padding: 8px;")
+        btn.clicked.connect(lambda: d.accept())
+        ly.addRow("", btn)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            nis_baru = e_nis.text().strip()
+            if not nis_baru or not e_nama.text().strip() or not e_pass.text().strip(): 
+                return QMessageBox.warning(self, "Error", "Semua kolom wajib diisi!")
+            if nis_baru != nis_lama and nis_baru in AKUN_SISWA: 
+                return QMessageBox.warning(self, "Error", "NIS baru sudah dipakai akun lain!")
+            if nis_baru != nis_lama: del AKUN_SISWA[nis_lama]
+            AKUN_SISWA[nis_baru] = {"nama": e_nama.text().strip(), "kelas": e_kelas.text().strip(), "password": e_pass.text().strip()}
+            save_all_dbs()
+            self.update_tabel_akun()
+
+    def hapus_akun_manual(self):
+        baris = self.tabel_akun.currentRow()
+        if baris < 0: return QMessageBox.warning(self, "Peringatan", "Pilih salah satu akun di tabel.")
+        nis = self.tabel_akun.item(baris, 0).text()
+        if QMessageBox.question(self, "Hapus Akun", f"Hapus akun siswa ini?\nNIS: {nis}") == QMessageBox.StandardButton.Yes:
+            if nis in AKUN_SISWA:
+                del AKUN_SISWA[nis]
+                save_all_dbs()
+                self.update_tabel_akun()
+
+    def update_tabel_akun(self):
+        self.tabel_akun.setRowCount(len(AKUN_SISWA))
+        for i, (nis, data) in enumerate(AKUN_SISWA.items()):
+            self.tabel_akun.setItem(i, 0, QTableWidgetItem(nis))
+            self.tabel_akun.setItem(i, 1, QTableWidgetItem(data['nama']))
+            self.tabel_akun.setItem(i, 2, QTableWidgetItem(data['kelas']))
+            self.tabel_akun.setItem(i, 3, QTableWidgetItem(data['password'])) 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

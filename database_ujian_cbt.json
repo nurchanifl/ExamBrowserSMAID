@@ -1,22 +1,6 @@
 {
     "proctor_password": "111",
-    "paket_ujian": {},
     "akun_siswa": {
-        "999": {
-            "nama": "M Faiz",
-            "kelas": "12",
-            "password": "123"
-        },
-        "888": {
-            "nama": "Haifa",
-            "kelas": "12",
-            "password": "123"
-        },
-        "777": {
-            "nama": "Isna",
-            "kelas": "12",
-            "password": "123"
-        },
         "0085055571": {
             "nama": "Naila Annafi",
             "kelas": "12",
@@ -81,6 +65,77 @@
             "nama": "Malikha Fauzia Ramadhani",
             "kelas": "12",
             "password": "8581228*"
+        },
+        "12": {
+            "nama": "Makikha Putri fauzia",
+            "kelas": "12",
+            "password": "12"
+        },
+        "13": {
+            "nama": "Mela Putri Fadilah",
+            "kelas": "12",
+            "password": "13"
+        },
+        "1": {
+            "nama": "Naila Annafi",
+            "kelas": "12",
+            "password": "1"
+        },
+        "2": {
+            "nama": "Isnaini Asih Triyana",
+            "kelas": "12",
+            "password": "2"
+        },
+        "3": {
+            "nama": "Syamsul Rizal Jaelani",
+            "kelas": "12",
+            "password": "3"
+        },
+        "4": {
+            "nama": "Najwa Aulia Azahra",
+            "kelas": "12",
+            "password": "4"
+        },
+        "5": {
+            "nama": "Haifa Humaira Putri Wardana",
+            "kelas": "12",
+            "password": "5"
+        },
+        "6": {
+            "nama": "Keysha Alfiansyah",
+            "kelas": "12",
+            "password": "6"
+        },
+        "7": {
+            "nama": "Kayana Tachiyyatul Zulfa",
+            "kelas": "12",
+            "password": "7"
+        },
+        "8": {
+            "nama": "Muhammad Faiz Nival Fahmi",
+            "kelas": "12",
+            "password": "8"
+        },
+        "9": {
+            "nama": "Kirani Laras Desvitasari",
+            "kelas": "12",
+            "password": "9"
+        },
+        "10": {
+            "nama": "Berlian Verdamara",
+            "kelas": "12",
+            "password": "10"
+        },
+        "11": {
+            "nama": "Nailul Fauziah",
+            "kelas": "12",
+            "password": "11"
+        },
+        "0": {
+            "nama": "uji coba",
+            "kelas": "1",
+            "password": "0"
         }
-    }
+    },
+    "paket_ujian": {}
 }
