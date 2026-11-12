@@ -1,0 +1,525 @@
+{
+    "proctor_password": "111",
+    "paket_ujian": {
+        "paket_1": {
+            "mapel": "Informatika",
+            "kelas": "12",
+            "token": "123",
+            "aktif": true,
+            "soal": [
+                {
+                    "id": 1,
+                    "tipe": "PG",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Saat aplikasi Microsoft Word dibuka, terdapat barisan di pojok kiri bawah yang menampilkan informasi seperti jumlah halaman, jumlah kata, dan bahasa yang sedang digunakan. Area ini disebut...",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Menu Tab",
+                        "B": "Title Bar",
+                        "C": "Status Bar",
+                        "D": "Quick Access",
+                        "E": "Ribbon & Group Menu"
+                    },
+                    "kunci": "C"
+                },
+                {
+                    "id": 2,
+                    "tipe": "PG",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Seorang siswa sedang mengetik makalah dan ingin bagian Daftar Pustaka memiliki format baris pertama tetap di luar, sedangkan baris kedua dan seterusnya menjorok ke dalam. Fitur pada Ruler yang harus ia gunakan adalah...",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "First Line Indent",
+                        "B": "Hanging Indent",
+                        "C": "Left Indent",
+                        "D": "Right Indent",
+                        "E": "Center Indent"
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 3,
+                    "tipe": "PG",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Jika kamu memasukkan gambar ke dalam dokumen dan ingin agar tulisan di sekeliling gambar menyingkir serta membentuk bingkai kotak yang rapi seperti pada ilustrasi, opsi Wrap Text yang harus dipilih adalah...",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "In Front of Text",
+                        "B": "Behind Text",
+                        "C": "Tight",
+                        "D": "Square",
+                        "E": "Top and Bottom"
+                    },
+                    "kunci": "D"
+                },
+                {
+                    "id": 4,
+                    "tipe": "PG",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Kamu diminta mencetak sebuah dokumen proposal sebanyak 3 rangkap. Agar hasil cetakan langsung tersusun rapi per bundel dokumen (halaman 1-2-3, 1-2-3, 1-2-3) dan kamu tidak perlu menyusunnya lagi secara manual, pengaturan cetak yang harus dipilih adalah...",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Print All Pages",
+                        "B": "Print Custom Range",
+                        "C": "Uncollated",
+                        "D": "Collated",
+                        "E": "Pages Per Sheet"
+                    },
+                    "kunci": "D"
+                },
+                {
+                    "id": 5,
+                    "tipe": "PG",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Untuk mempercepat pekerjaan saat mengedit dokumen, kita sering menggunakan kombinasi tombol keyboard (shortcut). Urutan shortcut yang tepat untuk menyeleksi seluruh tulisan, menyalinnya, lalu menempelkannya di tempat baru adalah...",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Ctrl + A, Ctrl + X, Ctrl + V",
+                        "B": "Ctrl + A, Ctrl + C, Ctrl + V",
+                        "C": "Ctrl + S, Ctrl + C, Ctrl + P",
+                        "D": "Ctrl + A, Ctrl + C, Ctrl + P",
+                        "E": "Ctrl + S, Ctrl + X, Ctrl + V"
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 6,
+                    "tipe": "PG",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Dalam pembuatan struktur organisasi panitia pensi sekolah, bentuk visual yang paling tepat dan efisien digunakan pada Microsoft Word adalah...",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Chart",
+                        "B": "Equation",
+                        "C": "SmartArt",
+                        "D": "Table (Merge Cells)",
+                        "E": "Online Pictures"
+                    },
+                    "kunci": "E"
+                },
+                {
+                    "id": 7,
+                    "tipe": "PG",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Tabel di Microsoft Word juga dapat digunakan untuk perhitungan sederhana. Jika kamu ingin menjumlahkan deretan angka pada sebuah kolom tabel, fungsi formula yang harus diketikkan pada tab Layout adalah...",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "=AVERAGE",
+                        "B": "=COUNT",
+                        "C": "=SUM",
+                        "D": "=MULTIPLY",
+                        "E": "=TOTAL"
+                    },
+                    "kunci": "C"
+                },
+                {
+                    "id": 8,
+                    "tipe": "PG",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Sebuah kepanitiaan harus mencetak 150 surat undangan dengan format isi yang sama, tetapi nama dan alamat penerimanya berbeda-beda. Agar efektif dan tidak perlu mengetik satu per satu, fitur yang wajib digunakan adalah...",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Header and Footer",
+                        "B": "Mail Merge",
+                        "C": "Format Page Numbers",
+                        "D": "Multilevel List",
+                        "E": "Find and Replace"
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 9,
+                    "tipe": "PG",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Perbedaan utama antara fitur Save dan Save As saat sedang mengerjakan dokumen Word adalah...",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Save menyimpan dengan format PDF, Save As menyimpan dengan format Word.",
+                        "B": "Save memperbarui dokumen yang sudah ada, Save As membuat salinan dokumen baru atau mengubah format file.",
+                        "C": "Save digunakan saat pertama kali membuka aplikasi, Save As digunakan saat aplikasi ditutup.",
+                        "D": "Save berfungsi menyimpan teks saja, Save As menyimpan beserta gambarnya.",
+                        "E": "Tidak ada perbedaan, keduanya memiliki fungsi yang sama persis."
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 10,
+                    "tipe": "PG",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Pada penyusunan laporan karya ilmiah, halaman \"Daftar Isi\" biasanya menggunakan angka Romawi (i, ii), sedangkan \"BAB 1\" menggunakan angka biasa (1, 2). Langkah krusial pertama yang harus dilakukan agar penomoran kedua bagian tersebut bisa dibedakan formatnya adalah...",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Mematikan tombol Link to Previous di menu Header & Footer.",
+                        "B": "Mengubah tipe angka di menu Format Page Numbers menjadi Start at 1.",
+                        "C": "Memutus sambungan antar halaman menggunakan menu Layout > Breaks > Next Page.",
+                        "D": "Menggunakan fitur Decrease Indent pada tab Home.",
+                        "E": "Menghapus Footer di halaman pertama lalu mengetik nomor secara manual."
+                    },
+                    "kunci": "C"
+                },
+                {
+                    "id": 11,
+                    "tipe": "PGK",
+                    "bobot": 10.0,
+                    "bacaan": "",
+                    "soal": "Petunjuk: Pilihlah pernyataan yang dianggap BENAR. (Jawaban benar bisa lebih dari satu kombinasi).\nBerdasarkan materi tentang pembuatan tabel di Word, manakah dari pernyataan berikut yang BENAR?",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Fitur Merge Cells digunakan untuk membelah satu kotak menjadi beberapa bagian kecil.",
+                        "Untuk menambah baris di atas kotak yang sedang dipilih, gunakan Insert Above pada tab Layout.",
+                        "Tabel di Word sama sekali tidak bisa menghitung rata-rata nilai, fitur itu hanya ada di Excel.",
+                        "Split Cells digunakan untuk memecah satu kotak menjadi beberapa baris atau kolom."
+                    ],
+                    "kunci": [
+                        1,
+                        3
+                    ]
+                },
+                {
+                    "id": 12,
+                    "tipe": "PGK",
+                    "bobot": 10.0,
+                    "bacaan": "",
+                    "soal": "Petunjuk: Pilihlah pernyataan yang dianggap BENAR. (Jawaban benar bisa lebih dari satu kombinasi).\n\nEvaluasi langkah-langkah pencetakan (Print) dokumen berikut ini. Manakah pernyataan yang BENAR?",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Mengisi kolom Copies dengan angka 5 berarti setiap halaman akan dicetak 5 kali.",
+                        "Opsi Print Current Page akan mencetak dari halaman awal sampai akhir dokumen.",
+                        "Memilih Print Both Sides akan mencetak dokumen secara bolak-balik di satu lembar kertas.",
+                        "Mengetik \"5-10\" pada opsi Custom Range akan mencetak halaman 5 dan 10 saja."
+                    ],
+                    "kunci": [
+                        0,
+                        2
+                    ]
+                },
+                {
+                    "id": 13,
+                    "tipe": "BS",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Petunjuk: Jawaban benar berjumlah lebih dari satu pada setiap soal.\nDari pilihan di bawah ini, manakah yang merupakan opsi pengaturan pada fitur Wrap Text untuk mengatur posisi gambar terhadap tulisan?",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "In Front of Text",
+                        "Split Cells",
+                        "Behind Text",
+                        "Link to Previous"
+                    ],
+                    "kunci": [
+                        "B",
+                        "S",
+                        "B",
+                        "S"
+                    ]
+                },
+                {
+                    "id": 14,
+                    "tipe": "BS",
+                    "bobot": 5.0,
+                    "bacaan": "",
+                    "soal": "Petunjuk: Jawaban benar berjumlah lebih dari satu pada setiap soal.\n\nUntuk menjalankan fitur Mail Merge (Surat Massal) dengan sukses, komponen dan langkah apa saja yang harus disiapkan dan dilakukan berdasarkan teks materi?",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Menyiapkan dokumen format surat kosong di MS Word.",
+                        "Menyiapkan tabel daftar nama dan alamat di MS Excel.",
+                        "Menggunakan menu Insert > Equation untuk memasukkan nama penerima.",
+                        "Menghubungkan file melalui Mailings > Select Recipients > Use Existing List."
+                    ],
+                    "kunci": [
+                        "B",
+                        "B",
+                        "S",
+                        "B"
+                    ]
+                },
+                {
+                    "id": 15,
+                    "tipe": "ESSAY",
+                    "bobot": 10.0,
+                    "bacaan": "",
+                    "soal": "Kamu ditugaskan merancang piagam penghargaan kelulusan, dan di dalam piagam tersebut ada logo sekolah yang posisinya terbalik (miring) dan ada bagian pinggiran logo yang \"bocor\" atau tidak rapi. Jelaskan fitur apa saja yang ada di dalam menu Format Picture yang akan kamu gunakan untuk menyelesaikan dua masalah tersebut, dan bagaimana cara kerjanya!",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "kunci": ""
+                },
+                {
+                    "id": 16,
+                    "tipe": "ESSAY",
+                    "bobot": 10.0,
+                    "bacaan": "",
+                    "soal": "Jelaskan urutan langkah-langkah secara logis bagaimana fitur Mail Merge bekerja mulai dari tahap persiapan dokumen hingga melihat hasil nama penerima berubah secara otomatis!",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "kunci": ""
+                }
+            ]
+        }
+    },
+    "akun_siswa": {
+        "12": {
+            "nama": "Makikha Putri fauzia",
+            "kelas": "12",
+            "password": "12"
+        },
+        "13": {
+            "nama": "Mela Putri Fadilah",
+            "kelas": "12",
+            "password": "13"
+        },
+        "1": {
+            "nama": "Naila Annafi",
+            "kelas": "12",
+            "password": "1"
+        },
+        "2": {
+            "nama": "Isnaini Asih Triyana",
+            "kelas": "12",
+            "password": "2"
+        },
+        "3": {
+            "nama": "Syamsul Rizal Jaelani",
+            "kelas": "12",
+            "password": "3"
+        },
+        "4": {
+            "nama": "Najwa Aulia Azahra",
+            "kelas": "12",
+            "password": "4"
+        },
+        "5": {
+            "nama": "Haifa Humaira Putri Wardana",
+            "kelas": "12",
+            "password": "5"
+        },
+        "6": {
+            "nama": "Keysha Alfiansyah",
+            "kelas": "12",
+            "password": "6"
+        },
+        "7": {
+            "nama": "Kayana Tachiyyatul Zulfa",
+            "kelas": "12",
+            "password": "7"
+        },
+        "8": {
+            "nama": "Muhammad Faiz Nival Fahmi",
+            "kelas": "12",
+            "password": "8"
+        },
+        "9": {
+            "nama": "Kirani Laras Desvitasari",
+            "kelas": "12",
+            "password": "9"
+        },
+        "10": {
+            "nama": "Berlian Verdamara",
+            "kelas": "12",
+            "password": "10"
+        },
+        "11": {
+            "nama": "Nailul Fauziah",
+            "kelas": "12",
+            "password": "11"
+        },
+        "0": {
+            "nama": "uji coba",
+            "kelas": "1",
+            "password": "0"
+        },
+        "30": {
+            "nama": "nada",
+            "kelas": "11",
+            "password": "30"
+        },
+        "31": {
+            "nama": "salsa",
+            "kelas": "11",
+            "password": "31"
+        },
+        "32": {
+            "nama": "maurin",
+            "kelas": "11",
+            "password": "32"
+        },
+        "33": {
+            "nama": "adel",
+            "kelas": "11",
+            "password": "33"
+        },
+        "34": {
+            "nama": "queen",
+            "kelas": "11",
+            "password": "34"
+        },
+        "35": {
+            "nama": "sasa",
+            "kelas": "11",
+            "password": "35"
+        },
+        "36": {
+            "nama": "umay",
+            "kelas": "11",
+            "password": "36"
+        },
+        "37": {
+            "nama": "medhina",
+            "kelas": "11",
+            "password": "37"
+        },
+        "38": {
+            "nama": "najwa d",
+            "kelas": "11",
+            "password": "38"
+        },
+        "39": {
+            "nama": "wafa",
+            "kelas": "11",
+            "password": "39"
+        },
+        "40": {
+            "nama": "aqila",
+            "kelas": "11",
+            "password": "40"
+        },
+        "41": {
+            "nama": "icha",
+            "kelas": "11",
+            "password": "41"
+        },
+        "51": {
+            "nama": "Lidya",
+            "kelas": "10",
+            "password": "51"
+        },
+        "52": {
+            "nama": "Regina",
+            "kelas": "10",
+            "password": "52"
+        },
+        "53": {
+            "nama": "Fitri",
+            "kelas": "10",
+            "password": "53"
+        },
+        "54": {
+            "nama": "Amara",
+            "kelas": "10",
+            "password": "54"
+        },
+        "55": {
+            "nama": "Zizi",
+            "kelas": "10",
+            "password": "55"
+        },
+        "56": {
+            "nama": "Indy",
+            "kelas": "10",
+            "password": "56"
+        },
+        "999": {
+            "nama": "M Faiz",
+            "kelas": "12",
+            "password": "123"
+        },
+        "888": {
+            "nama": "Haifa",
+            "kelas": "12",
+            "password": "123"
+        },
+        "777": {
+            "nama": "Isna",
+            "kelas": "12",
+            "password": "123"
+        },
+        "0085055571": {
+            "nama": "Naila Annafi",
+            "kelas": "12",
+            "password": "8419137*"
+        },
+        "0095023718": {
+            "nama": "Isnaini Asih Triyana",
+            "kelas": "12",
+            "password": "8829942*"
+        },
+        "0092688940": {
+            "nama": "Syamsul Rizal Jaelani",
+            "kelas": "12",
+            "password": "8873626*"
+        },
+        "3082972143": {
+            "nama": "Najwa Aulia Azahra",
+            "kelas": "12",
+            "password": "8129418*"
+        },
+        "0086539575": {
+            "nama": "Haifa Humaira Putri Wardana",
+            "kelas": "12",
+            "password": "8927837*"
+        },
+        "30921910996": {
+            "nama": "Keysha Alfiansyah",
+            "kelas": "12",
+            "password": "8517134*"
+        },
+        "3097388612": {
+            "nama": "Kayana Tachiyyatul Zulfa",
+            "kelas": "12",
+            "password": "8426845*"
+        },
+        "3097582201": {
+            "nama": "Muhammad Faiz Nival Fahmi",
+            "kelas": "12",
+            "password": "8861293*"
+        },
+        "0089150588": {
+            "nama": "Kirani Laras Desvitasari",
+            "kelas": "12",
+            "password": "8248152*"
+        },
+        "00910997824": {
+            "nama": "Berlian Verdamara",
+            "kelas": "12",
+            "password": "8323547*"
+        },
+        "0091897686": {
+            "nama": "Nailul Fauziah",
+            "kelas": "12",
+            "password": "8762171*"
+        },
+        "3093810073": {
+            "nama": "Mela Putri Fadilah",
+            "kelas": "12",
+            "password": "8951326*"
+        },
+        "0093257785": {
+            "nama": "Malikha Fauzia Ramadhani",
+            "kelas": "12",
+            "password": "8581228*"
+        }
+    }
+}

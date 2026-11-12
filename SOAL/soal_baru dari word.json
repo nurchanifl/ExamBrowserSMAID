@@ -1,0 +1,550 @@
+{
+    "proctor_password": "222",
+    "paket_ujian": {
+        "paket_1": {
+            "mapel": "1",
+            "kelas": "1",
+            "token": "1",
+            "aktif": true,
+            "soal": [
+                {
+                    "id": 1,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Saat aplikasi MS Word (versi 2016 atau yang lebih baru) dibuka, terdapat berbagai area penting pada lembar kerja seperti Title Bar, Quick Access, Menu Tab, hingga Status Bar di pojok kiri bawah.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Barisan atau area di pojok kiri bawah lembar kerja Microsoft Word yang berfungsi menampilkan informasi halaman, jumlah kata, dan bahasa disebut...</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Menu Tab",
+                        "B": "Title Bar",
+                        "C": "Status Bar",
+                        "D": "Quick Access",
+                        "E": "Ribbon & Group Menu"
+                    },
+                    "kunci": "C"
+                },
+                {
+                    "id": 2,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Dalam menyusun Daftar Pustaka sebuah makalah, diperlukan pengaturan khusus pada batas paragraf agar baris pertama teks tetap di luar dan baris-baris berikutnya menjorok ke dalam.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Fitur pada penggaris (Ruler) atas yang harus digeser untuk membuat format paragraf Daftar Pustaka tersebut adalah...</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "First Line Indent",
+                        "B": "Hanging Indent",
+                        "C": "Left Indent",
+                        "D": "Right Indent",
+                        "E": "Center Indent"
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 3,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Saat memasukkan gambar ke dalam dokumen Word, terkadang posisi teks di sekeliling gambar berantakan jika tidak diatur menggunakan fitur tata letak yang tepat.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Opsi Wrap Text yang harus dipilih jika kamu ingin agar teks di sekeliling gambar menyingkir serta membentuk bingkai kotak yang rapi adalah...</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "In Front of Text",
+                        "B": "Behind Text",
+                        "C": "Tight",
+                        "D": "Square",
+                        "E": "Top and Bottom"
+                    },
+                    "kunci": "D"
+                },
+                {
+                    "id": 4,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Sebelum mencetak dokumen makalah yang terdiri dari beberapa halaman dan dicetak rangkap ganda, pengaturan susunan (collated) sangat penting agar bundel tersusun otomatis.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Jika kamu memilih pengaturan \"Collated\" saat mencetak makalah 3 halaman sebanyak 2 rangkap, bagaimana hasil cetakan dari mesin printer?</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Mesin mencetak per halaman: 1-1, lalu 2-2, lalu 3-3",
+                        "B": "Mesin mencetak urut: 1-2-3, lalu 1-2-3 lagi",
+                        "C": "Mesin hanya mencetak halaman 1 dan 3",
+                        "D": "Mesin mencetak bolak-balik (dua sisi) pada satu kertas",
+                        "E": "Mesin mencetak 2 halaman Word menjadi berukuran kecil dalam 1 lembar kertas"
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 5,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Untuk mempercepat proses penyuntingan dan pengeditan teks pada dokumen, pengguna sering memanfaatkan kombinasi tombol keyboard atau shortcut.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Urutan shortcut keyboard yang tepat untuk menyeleksi seluruh tulisan, menyalinnya, lalu menempelkannya di tempat baru adalah...</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Ctrl + A, Ctrl + X, Ctrl + V",
+                        "B": "Ctrl + A, Ctrl + C, Ctrl + V",
+                        "C": "Ctrl + S, Ctrl + C, Ctrl + P",
+                        "D": "Ctrl + A, Ctrl + C, Ctrl + P",
+                        "E": "Ctrl + S, Ctrl + X, Ctrl + V"
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 6,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Penyajian data alur proses berantai atau struktur organisasi di Microsoft Word dapat dibuat secara visual agar lebih mudah dipahami oleh pembaca.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Fitur pada tab Insert yang paling tepat digunakan untuk membuat bagan struktur organisasi atau siklus proses adalah...</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Chart",
+                        "B": "Equation",
+                        "C": "SmartArt",
+                        "D": "Table (Merge Cells)",
+                        "E": "Online Pictures"
+                    },
+                    "kunci": "C"
+                },
+                {
+                    "id": 7,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Tabel di Microsoft Word selain untuk menyajikan data teks juga dapat melakukan perhitungan matematika sederhana tanpa harus pindah ke Excel.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Jika kamu ingin menjumlahkan deretan angka secara otomatis pada sebuah kolom tabel di Word, fungsi formula yang harus diketikkan adalah...</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "=AVERAGE",
+                        "B": "=COUNT",
+                        "C": "=SUM",
+                        "D": "=MULTIPLY",
+                        "E": "=TOTAL"
+                    },
+                    "kunci": "C"
+                },
+                {
+                    "id": 8,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Pekerjaan administrasi perkantoran sering kali membutuhkan pembuatan ratusan surat undangan dengan format isi serupa tetapi nama dan alamat penerima berbeda.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Fitur di Microsoft Word yang paling tepat dan efisien untuk menggabungkan dokumen surat dengan daftar nama dari Excel adalah...</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Header and Footer",
+                        "B": "Mail Merge",
+                        "C": "Format Page Numbers",
+                        "D": "Multilevel List",
+                        "E": "Find and Replace"
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 9,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Saat sedang mengetik dokumen penting, memahami fungsi penyimpanan sangat krusial agar file tidak hilang atau bisa disalin dengan format baru seperti PDF.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Perbedaan utama antara fungsi Save dan Save As adalah...</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Save menyimpan dengan format PDF, Save As menyimpan dengan format Word.",
+                        "B": "Save memperbarui dokumen yang sudah ada, Save As membuat salinan dokumen baru atau mengubah format file.",
+                        "C": "Save digunakan saat pertama kali membuka aplikasi, Save As digunakan saat aplikasi ditutup.",
+                        "D": "Save berfungsi menyimpan teks saja, Save As menyimpan beserta gambarnya.",
+                        "E": "Tidak ada perbedaan, keduanya memiliki fungsi yang sama persis."
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 10,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Penyusunan karya ilmiah atau skripsi menuntut perbedaan format penomoran halaman antara bagian awal (Daftar Isi) dan isi (BAB).</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Langkah krusial pertama yang harus dilakukan agar penomoran halaman Daftar Isi (Romawi) dan BAB 1 (Angka) bisa dibedakan formatnya tanpa saling merusak adalah...</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Mematikan tombol Link to Previous di menu Header & Footer.",
+                        "B": "Mengubah tipe angka di menu Format Page Numbers menjadi Start at 1.",
+                        "C": "Memutus sambungan antar halaman menggunakan menu Layout > Breaks > Next Page.",
+                        "D": "Menggunakan fitur Decrease Indent pada tab Home.",
+                        "E": "Menghapus Footer di halaman pertama lalu mengetik nomor secara manual."
+                    },
+                    "kunci": "C"
+                },
+                {
+                    "id": 11,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Penggunaan bullet, numbering, dan indentasi sangat membantu dalam merapikan struktur teks atau rincian bertingkat dalam dokumen.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Tombol atau ikon apa yang digunakan untuk membuat daftar \"anak/sub\" rincian agar masuk lebih ke dalam?</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Decrease Indent",
+                        "B": "Increase Indent",
+                        "C": "Hanging Indent",
+                        "D": "Line Spacing",
+                        "E": "Format Painter"
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 12,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Rumus matematika atau fisika yang rumit seperti pecahan, akar kuadrat, atau pangkat sering kali diperlukan dalam pembuatan modul ajar.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Tab menu apa yang harus diakses di Microsoft Word jika kamu ingin menyisipkan rumus matematika tersebut?</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Insert > Equation",
+                        "B": "Insert > Symbol",
+                        "C": "References > Equation",
+                        "D": "Home > Paragraph",
+                        "E": "Layout > Breaks"
+                    },
+                    "kunci": "A"
+                },
+                {
+                    "id": 13,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Mengatur orientasi kertas sangat penting ketika menyajikan tabel atau grafik yang memiliki banyak kolom agar tidak terpotong saat dicetak.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Pilihan orientasi kertas yang membuat posisi kertas menjadi memanjang atau mendatar (horizontal) disebut...</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Portrait",
+                        "B": "Landscape",
+                        "C": "Margins",
+                        "D": "Legal",
+                        "E": "Custom Range"
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 14,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Gambar yang disisipkan ke dalam dokumen Word sering kali ukurannya perlu disesuaikan agar proporsional dan tidak merusak tata letak.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Saat mengubah ukuran (resizing) gambar di Microsoft Word agar tidak menjadi gepeng atau melar, bagian mana yang harus ditarik?</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Titik tengah atas gambar",
+                        "B": "Titik tengah samping gambar",
+                        "C": "Titik sudut (pojok) gambar",
+                        "D": "Garis tepi gambar secara bebas",
+                        "E": "Tombol rotate di atas gambar"
+                    },
+                    "kunci": "C"
+                },
+                {
+                    "id": 15,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Sebelum mencetak dokumen, pengaturan halaman (Print Settings) wajib diperhatikan agar tidak terjadi kesalahan pemakaian kertas.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Pengaturan Print manakah yang harus dipilih jika kamu hanya ingin mencetak satu halaman tempat kursor aktif berada saat itu?</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 4</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Print All Pages",
+                        "B": "Print One Sided",
+                        "C": "Print Current Page",
+                        "D": "Print Custom Range",
+                        "E": "Collated"
+                    },
+                    "kunci": "C"
+                },
+                {
+                    "id": 16,
+                    "tipe": "PGK",
+                    "bobot": 4.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Pengelolaan tabel dan pengaturan sel di Microsoft Word memiliki beberapa fungsi spesifik untuk merapikan data dan melakukan perhitungan.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Berdasarkan materi tentang tabel, tentukan pernyataan yang BENAR atau SALAH di bawah ini!</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 5</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Fitur Merge Cells digunakan untuk menggabungkan dua atau lebih kotak menjadi satu kotak besar. ",
+                        "Untuk menambah baris di atas kotak yang sedang dipilih, gunakan Insert Above pada tab Layout. ",
+                        "Tabel di Word sama sekali tidak bisa menghitung rata-rata nilai, fitur itu hanya eksklusif di Excel. ",
+                        "Split Cells digunakan untuk memecah satu kotak menjadi beberapa bagian kolom atau baris. "
+                    ],
+                    "kunci": [
+                        0,
+                        1,
+                        3
+                    ]
+                },
+                {
+                    "id": 17,
+                    "tipe": "PGK",
+                    "bobot": 4.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Pengaturan parameter pencetakan (Print) dokumen memerlukan ketelitian agar tidak terjadi kesalahan operasional di mesin printer.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Evaluasi pernyataan mengenai pengaturan pencetakan dokumen berikut. Manakah yang bernilai BENAR?</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 5</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Mengisi kolom Copies dengan angka 3 berarti setiap halaman dokumen akan mencetak sebanyak 3 rangkap. ",
+                        "Opsi Print Current Page akan mencetak seluruh isi dokumen dari halaman awal sampai akhir. ",
+                        "Memilih Print Both Sides akan mencetak dokumen secara bolak-balik (dua sisi) pada satu kertas. ",
+                        "Mengetik \"5-10\" pada opsi Custom Range akan mencetak halaman 5 dan 10 saja secara terpisah. "
+                    ],
+                    "kunci": [
+                        0,
+                        2
+                    ]
+                },
+                {
+                    "id": 18,
+                    "tipe": "PGK",
+                    "bobot": 4.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Fitur Wrap Text pada Microsoft Word memiliki berbagai mode tata letak gambar terhadap teks agar dokumen terlihat rapi.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Dari pilihan di bawah ini, manakah yang merupakan opsi pengaturan yang valid pada menu Wrap Text?</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 5</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "In Front of Text ",
+                        "Split Cells ",
+                        "Behind Text ",
+                        "Link to Previous ",
+                        "Tight "
+                    ],
+                    "kunci": [
+                        0,
+                        2,
+                        4
+                    ]
+                },
+                {
+                    "id": 19,
+                    "tipe": "BS",
+                    "bobot": 4.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Dalam menggunakan File Explorer di Windows, terdapat beberapa trik cepat menggunakan jalan pintas (shortcut) keyboard untuk mengelola file.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Tentukan Benar (B) atau Salah (S) dari pernyataan tentang shortcut dan pengelolaan file di bawah ini!</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 3</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Menekan tombol Ctrl + Shift + N secara bersamaan akan membuat Folder Baru. ",
+                        "Menekan tombol Delete biasa akan langsung memusnahkan file secara permanen tanpa masuk ke Recycle Bin. ",
+                        "Tombol Ctrl + X digunakan untuk memindah (Cut) file atau teks. ",
+                        "File dengan ekstensi .DOCX dan .XLSX adalah contoh file aplikasi (installer). "
+                    ],
+                    "kunci": [
+                        "B",
+                        "S",
+                        "B",
+                        "S"
+                    ]
+                },
+                {
+                    "id": 20,
+                    "tipe": "BS",
+                    "bobot": 4.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Internet menghubungkan berbagai perangkat secara global melalui bantuan infrastruktur jaringan, modem, serta browser.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Analisislah kebenaran dari masing-masing pernyataan mengenai internet dan jaringan di bawah ini!</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 3</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Modem bertugas mengubah sinyal analog menjadi digital agar perangkat mengenali data internet. ",
+                        "Google Chrome dan Mozilla Firefox adalah contoh dari Mesin Pencari (Search Engine). ",
+                        "Domain .go.id merupakan nama domain yang dikhususkan untuk instansi pemerintahan di Indonesia. ",
+                        "Telkomsel dan Indihome adalah contoh perusahaan penyedia jasa layanan internet (ISP). "
+                    ],
+                    "kunci": [
+                        "B",
+                        "S",
+                        "B",
+                        "B"
+                    ]
+                },
+                {
+                    "id": 21,
+                    "tipe": "BS",
+                    "bobot": 4.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Microsoft Word memiliki pengaturan Kertas (Page Setup), Penomoran Halaman (Page Number), serta Header dan Footer.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Nyatakan Benar atau Salah dari pengaturan dokumen Word berikut ini!</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 3</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Pengaturan orientasi (Orientation) \"Landscape\" berfungsi untuk mengatur posisi kertas menjadi berdiri tegak. ",
+                        "Header adalah area tambahan yang berada di margin bagian bawah kertas. ",
+                        "Pengaturan \"Print Current Page\" akan mencetak hanya satu halaman tempat kursor sedang berada saat itu. ",
+                        "Format nomor halaman pada Word dapat diubah dari angka biasa menjadi angka Romawi melalui opsi Format Page Numbers. "
+                    ],
+                    "kunci": [
+                        "S",
+                        "S",
+                        "B",
+                        "B"
+                    ]
+                },
+                {
+                    "id": 22,
+                    "tipe": "ESSAY",
+                    "bobot": 15.33,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Dalam mendesain piagam penghargaan kelulusan, seringkali logo sekolah yang disisipkan mengalami kendala posisi miring serta adanya bagian pinggiran gambar yang tidak diinginkan.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Jelaskan fitur apa saja yang ada di dalam menu Format Picture di Microsoft Word yang dapat digunakan untuk mengatasi kedua masalah tersebut beserta cara kerjanya!</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 5.33</p>",
+                    "gambar": "",
+                    "sumber_gambar": ""
+                },
+                {
+                    "id": 23,
+                    "tipe": "ESSAY",
+                    "bobot": 15.33,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Agar pencarian materi atau tugas di internet tidak memakan waktu lama, ada beberapa trik khusus atau kode perintah di mesin pencari Google yang bisa dimanfaatkan.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Sebutkan dan jelaskan tiga macam trik atau kode perintah khusus (seperti penggunaan tanda kutip, tanda minus, dll.) saat melakukan pencarian di Google!</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 5.33</p>",
+                    "gambar": "",
+                    "sumber_gambar": ""
+                },
+                {
+                    "id": 24,
+                    "tipe": "ESSAY",
+                    "bobot": 15.33,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Jika disuruh membuat ratusan surat undangan dengan nama dan alamat tujuan yang berbeda-beda, kita tidak perlu mengetiknya satu per satu karena ada solusinya di Microsoft Word.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Sebutkan nama fitur yang tepat untuk membuat surat massal tersebut, dan jelaskan langkah-langkah singkat menggunakannya yang melibatkan dokumen Word dan MS Excel!</p><p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:justify;\">Bobot: 5.33</p>",
+                    "gambar": "",
+                    "sumber_gambar": ""
+                }
+            ]
+        }
+    },
+    "akun_siswa": {
+        "12": {
+            "nama": "Malikha Fauzia Ramadhani",
+            "kelas": "12",
+            "password": "12"
+        },
+        "13": {
+            "nama": "Mela Putri Fadilah",
+            "kelas": "12",
+            "password": "13"
+        },
+        "1": {
+            "nama": "Naila Annafi",
+            "kelas": "12",
+            "password": "1"
+        },
+        "2": {
+            "nama": "Isnaini Asih Triyana",
+            "kelas": "12",
+            "password": "2"
+        },
+        "3": {
+            "nama": "Syamsul Rizal Jaelani",
+            "kelas": "12",
+            "password": "3"
+        },
+        "4": {
+            "nama": "Najwa Aulia Azahra",
+            "kelas": "12",
+            "password": "4"
+        },
+        "5": {
+            "nama": "Haifa Humaira Putri Wardana",
+            "kelas": "12",
+            "password": "5"
+        },
+        "6": {
+            "nama": "Keysha Alfiansyah",
+            "kelas": "12",
+            "password": "6"
+        },
+        "7": {
+            "nama": "Kayana Tachiyyatul Zulfa",
+            "kelas": "12",
+            "password": "7"
+        },
+        "8": {
+            "nama": "Muhammad Faiz Nival Fahmi",
+            "kelas": "12",
+            "password": "8"
+        },
+        "9": {
+            "nama": "Kirani Laras Desvitasari",
+            "kelas": "12",
+            "password": "9"
+        },
+        "10": {
+            "nama": "Berlian Verdamara",
+            "kelas": "12",
+            "password": "10"
+        },
+        "11": {
+            "nama": "Nailul Fauziah",
+            "kelas": "12",
+            "password": "11"
+        },
+        "0": {
+            "nama": "uji coba",
+            "kelas": "1",
+            "password": "0"
+        },
+        "30": {
+            "nama": "nada",
+            "kelas": "11",
+            "password": "30"
+        },
+        "31": {
+            "nama": "salsa",
+            "kelas": "11",
+            "password": "31"
+        },
+        "32": {
+            "nama": "maurin",
+            "kelas": "11",
+            "password": "32"
+        },
+        "33": {
+            "nama": "adel",
+            "kelas": "11",
+            "password": "33"
+        },
+        "34": {
+            "nama": "queen",
+            "kelas": "11",
+            "password": "34"
+        },
+        "35": {
+            "nama": "sasa",
+            "kelas": "11",
+            "password": "35"
+        },
+        "36": {
+            "nama": "umay",
+            "kelas": "11",
+            "password": "36"
+        },
+        "37": {
+            "nama": "medhina",
+            "kelas": "11",
+            "password": "37"
+        },
+        "38": {
+            "nama": "najwa d",
+            "kelas": "11",
+            "password": "38"
+        },
+        "39": {
+            "nama": "wafa",
+            "kelas": "11",
+            "password": "39"
+        },
+        "40": {
+            "nama": "aqila",
+            "kelas": "11",
+            "password": "40"
+        },
+        "41": {
+            "nama": "icha",
+            "kelas": "11",
+            "password": "41"
+        }
+    }
+}
