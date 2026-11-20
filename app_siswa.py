@@ -18,7 +18,7 @@ def dapatkan_path_file(nama_file):
     # 1. Cek di VS Code (Path Relatif)
     if os.path.exists(nama_file):
         return os.path.abspath(nama_file)
-        
+         
     # 2. Cek di dalam folder _internal (Jika dibawa otomatis oleh PyInstaller)
     try:
         base_path = sys._MEIPASS
