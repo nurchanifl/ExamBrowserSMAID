@@ -6,6 +6,7 @@ import csv
 import socket
 import threading
 import re
+import ctypes
 import time 
 WAKTU_AKTIF_SISWA ={}
 from flask import Flask, request, jsonify
@@ -1689,9 +1690,20 @@ class GuruApp(QMainWindow):
             self.tabel_akun.setItem(i, 2, QTableWidgetItem(data['kelas']))
             self.tabel_akun.setItem(i, 3, QTableWidgetItem(data['password'])) 
 
+from updater import cek_dan_update_otomatis
+
+VERSI_GURU = "1.0.0"
+
 if __name__ == '__main__':
+    # 1. ID unik khusus aplikasi guru agar ikon di Taskbar tidak tertukar dengan siswa
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("smaid.exambrowser.guru")
+
+    # 2. Cek pembaruan khusus kategori "guru" di versi.json GitHub
+    cek_dan_update_otomatis("guru", VERSI_GURU)
     app = QApplication(sys.argv)
-    app.setStyle("Fusion") 
-    window = GuruApp()
+
+    # 3. Pasang logo sekolah sebagai ikon resmi jendela & Taskbar
+    app.setWindowIcon(QIcon(dapatkan_path_file("logo.jpg")))
+    window = GuruApp()  # Sesuaikan dengan nama class utama di app_guru.py milikmu
     window.show()
     sys.exit(app.exec())

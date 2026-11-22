@@ -1,12 +1,14 @@
 import sys
 import os
+import time
 import requests
 import base64
 import keyboard
 import ctypes
 import threading
 import random
-import atexit # Untuk merestart explorer.exe jika aplikasi tertutup tiba-tiba
+import atexit
+import subprocess
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                              QLabel, QLineEdit, QPushButton, QMessageBox, QStackedWidget,
                              QScrollArea, QRadioButton, QCheckBox, QButtonGroup, QGridLayout,
@@ -104,18 +106,26 @@ class NetworkWorker(QThread):
     finished = pyqtSignal(dict)
     failed = pyqtSignal(str)
 
-    def __init__(self, url, payload):
+    def __init__(self, url, payload, retries=3):
         super().__init__()
         self.url = url
         self.payload = payload
+        self.retries = retries
 
     def run(self):
-        try:
-            r = requests.post(self.url, json=self.payload, timeout=15)
-            data = r.json()
-            self.finished.emit(data)
-        except Exception as e:
-            self.failed.emit(str(e))
+        error_terakhir = ""
+        for percobaan in range(self.retries):
+            try:
+                r = requests.post(self.url, json=self.payload, timeout=15)
+                r.raise_for_status()
+                data = r.json()
+                self.finished.emit(data)
+                return
+            except Exception as e:
+                error_terakhir = str(e)
+                if percobaan < self.retries - 1:
+                    time.sleep(0.8)
+        self.failed.emit(error_terakhir)
 
 class SiswaApp(QMainWindow):
     sinyal_kick = pyqtSignal()
@@ -142,6 +152,8 @@ class SiswaApp(QMainWindow):
         self.boleh_tutup = False 
         self.is_dialog_open = False 
         self.sedang_di_kick = False 
+        self.gagal_koneksi_berturut = 0
+        self.sedang_kirim_autosave = False
         
         self.blokir_keyboard() 
         
@@ -178,12 +190,26 @@ class SiswaApp(QMainWindow):
 
     # ================= SISTEM ANTI-CHEAT (Mematikan Explorer) =================
     def matikan_explorer(self):
-        try: os.system("taskkill /f /im explorer.exe")
-        except: pass
+        try:
+            subprocess.run(
+                ["taskkill", "/f", "/im", "explorer.exe"],
+                creationflags=subprocess.CREATE_NO_WINDOW
+            )
+        except Exception:
+            pass
 
     def hidupkan_explorer(self):
-        try: os.system("start explorer.exe")
-        except: pass
+        try:
+            cek = subprocess.run(
+                ["tasklist", "/FI", "IMAGENAME eq explorer.exe"],
+                capture_output=True,
+                text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW
+            )
+            if "explorer.exe" not in cek.stdout.lower():
+                subprocess.Popen("explorer.exe")
+        except Exception:
+            pass
 
     def changeEvent(self, event):
         if event.type() == event.Type.ActivationChange:
@@ -295,9 +321,9 @@ class SiswaApp(QMainWindow):
         pwd = self.inp_pwd.text().strip()
         if not ip or not nis or not pwd: return self.tampil_pesan("Oops! 🛑", "Semua kolom wajib diisi ya!")
         self.server_ip = f"http://{ip}:5000"
-        self.active_worker = NetworkWorker(f"{self.server_ip}/api/login_siswa", {"nis": nis, "password": pwd})
+        self.active_worker = NetworkWorker(f"{self.server_ip}/api/login_siswa", {"nis": nis, "password": pwd}, retries=3)
         self.active_worker.finished.connect(self.setelah_login)
-        self.active_worker.failed.connect(lambda err: self.tampil_pesan("Koneksi Gagal ⚠️", "Gagal terhubung ke Server Proktor."))
+        self.active_worker.failed.connect(lambda err: self.tampil_pesan("Koneksi Gagal ⚠️", "Gagal terhubung ke Server Proktor. Pastikan IP benar dan WiFi terhubung."))
         self.active_worker.start()
 
     def setelah_login(self, data):
@@ -316,7 +342,7 @@ class SiswaApp(QMainWindow):
     def proses_cek_kick_bg(self):
         if not self.server_ip or not self.nis: return
         try:
-            r = requests.post(f"{self.server_ip}/api/cek_status_siswa", json={"nis": self.nis, "token": "LOGIN"}, timeout=3)
+            r = requests.post(f"{self.server_ip}/api/cek_status_siswa", json={"nis": self.nis, "token": "LOGIN"}, timeout=6)
             if r.json().get("status") == "kick":
                 self.sinyal_kick.emit()
         except: pass
@@ -371,9 +397,9 @@ class SiswaApp(QMainWindow):
     def proses_token(self):
         token = self.inp_token.text().strip().upper()
         if not token: return self.tampil_pesan("Oops! 🛑", "Token ujian wajib diisi!")
-        self.active_worker = NetworkWorker(f"{self.server_ip}/api/auth_soal", {"token": token, "nis": self.nis})
+        self.active_worker = NetworkWorker(f"{self.server_ip}/api/auth_soal", {"token": token, "nis": self.nis}, retries=3)
         self.active_worker.finished.connect(lambda data: self.setelah_auth_soal(token, data))
-        self.active_worker.failed.connect(lambda err: self.tampil_pesan("Koneksi Gagal ⚠️", "Gagal terhubung."))
+        self.active_worker.failed.connect(lambda err: self.tampil_pesan("Koneksi Gagal ⚠️", "Gagal mengambil soal dari server. Coba klik Mulai Ujian lagi."))
         self.active_worker.start()
 
     def setelah_auth_soal(self, token, data):
@@ -387,12 +413,14 @@ class SiswaApp(QMainWindow):
             self.jawaban = data.get('jawaban_tersimpan', {}) 
             self.indeks_soal = 0
             self.soal_sudah_dipopup = set()
+            self.gagal_koneksi_berturut = 0
             self.buat_navigasi_soal()
             self.render_soal_aktif()
             self.w_utama.setCurrentIndex(2)
             
             self.timer_anti_cheat.start(500) 
             self.timer_autosave.start(10000) # Auto-save dikirim ke server setiap 10 detik
+            self.kirim_autosave() # Langsung lapor koneksi aktif di awal ujian
         else: self.tampil_pesan("Gagal ❌", data.get('pesan', 'Token tidak valid'))
 
     # ================= 3. HALAMAN UJIAN UTAMA =================
@@ -646,7 +674,7 @@ class SiswaApp(QMainWindow):
         if self.server_ip:
             url_cek = f"{self.server_ip}/api/cek_status_siswa"
             try:
-                respons = requests.post(url_cek, json={"nis": self.nis, "token": getattr(self, 'token', 'LOGIN')}, timeout=2)
+                respons = requests.post(url_cek, json={"nis": self.nis, "token": getattr(self, 'token', 'LOGIN')}, timeout=5)
                 if respons.status_code == 200:
                     QMessageBox.warning(self, "Akses Ditolak 🛑", 
                         "Anda masih terhubung dengan Server Ujian!\n\nUntuk keluar dari soal, silakan angkat tangan dan minta izin kepada Guru/Proktor untuk di-KICK.")
@@ -698,6 +726,8 @@ class SiswaApp(QMainWindow):
         self.update_progres_bar_lokal()
 
     def kirim_autosave(self):
+        if getattr(self, 'sedang_kirim_autosave', False):
+            return
         jml_terjawab = len([k for k in self.jawaban.keys() if self.jawaban[k]])
         payload = {"nis": self.nis, "token": getattr(self, 'token', ''), "jawaban": self.jawaban, "terjawab": jml_terjawab}
         threading.Thread(target=self.proses_kirim_autosave_bg, args=(payload,), daemon=True).start()
@@ -705,13 +735,20 @@ class SiswaApp(QMainWindow):
     def proses_kirim_autosave_bg(self, payload):
         if getattr(self, 'sedang_di_kick', False): return
         if not self.server_ip or not self.nis: return
+        self.sedang_kirim_autosave = True
         try:
-            r = requests.post(f"{self.server_ip}/api/autosave", json=payload, timeout=3)
+            r = requests.post(f"{self.server_ip}/api/autosave", json=payload, timeout=8)
+            r.raise_for_status()
+            self.gagal_koneksi_berturut = 0
             self.sinyal_koneksi.emit(True)
             if r.json().get("action") == "reset":
                 self.sinyal_kick.emit()
         except requests.exceptions.RequestException:
-            self.sinyal_koneksi.emit(False)
+            self.gagal_koneksi_berturut += 1
+            if self.gagal_koneksi_berturut >= 2:
+                self.sinyal_koneksi.emit(False)
+        finally:
+            self.sedang_kirim_autosave = False
 
     # ================= FUNGSI RESET / KICK UTAMA =================
     def reset_ke_login_dari_server(self):
@@ -818,18 +855,30 @@ class SiswaApp(QMainWindow):
         else: self.timer_anti_cheat.start(500)
 
     def proses_submit(self):
+        self.timer_autosave.stop()
+        self.btn_selesai.setEnabled(False)
+        self.btn_selesai.setText("MENGIRIM JAWABAN... ⏳")
         payload = {"token": self.token, "nama": self.nama, "jawaban": self.jawaban}
-        self.active_worker = NetworkWorker(f"{self.server_ip}/api/submit", payload)
+        self.active_worker = NetworkWorker(f"{self.server_ip}/api/submit", payload, retries=3)
         self.active_worker.finished.connect(self.setelah_submit)
-        self.active_worker.failed.connect(lambda err: self.tampil_pesan("Gagal ⚠️", "Gagal menyimpan ke server."))
+        self.active_worker.failed.connect(self.gagal_submit)
         self.active_worker.start()
 
+    def gagal_submit(self, err):
+        self.btn_selesai.setEnabled(True)
+        self.btn_selesai.setText("KUMPULKAN UJIAN ✔")
+        self.timer_autosave.start(10000)
+        self.tampil_pesan("Gagal ⚠️", "Gagal menyimpan ke server setelah beberapa percobaan. Periksa WiFi lalu klik Kumpulkan Ujian lagi.")
+
     def setelah_submit(self, data):
+        self.btn_selesai.setEnabled(True)
+        self.btn_selesai.setText("KUMPULKAN UJIAN ✔")
         if data.get('status') == 'sukses':
             self.timer_autosave.stop()
             self.timer_anti_cheat.stop()
             self.w_utama.setCurrentIndex(3) 
         else:
+            self.timer_autosave.start(10000)
             self.tampil_pesan("Error ❌", "Gagal menyimpan ke server.")
 
     # ================= 4. HALAMAN SELESAI =================
@@ -892,7 +941,7 @@ class SiswaApp(QMainWindow):
         if self.server_ip:
             url_cek = f"{self.server_ip}/api/cek_password"
             try:
-                respons = requests.post(url_cek, json={"password": pwd}, timeout=3)
+                respons = requests.post(url_cek, json={"password": pwd}, timeout=8)
                 data = respons.json()
                 if data.get("status") == "sukses":
                     self.reset_ke_login()
@@ -916,6 +965,12 @@ class SiswaApp(QMainWindow):
             self.timer_anti_cheat.stop()
         except: pass
         
+        self.gagal_koneksi_berturut = 0
+        self.sedang_kirim_autosave = False
+        if hasattr(self, 'btn_selesai'):
+            self.btn_selesai.setEnabled(True)
+            self.btn_selesai.setText("KUMPULKAN UJIAN ✔")
+            
         self.nis, self.nama, self.kelas, self.token, self.mapel = "", "", "", "", ""
         self.soal_list, self.jawaban = [], {}
         self.soal_sudah_dipopup = set()
@@ -937,7 +992,7 @@ class SiswaApp(QMainWindow):
         if ip:
             url_cek = f"http://{ip}:5000/api/cek_password"
             try:
-                respons = requests.post(url_cek, json={"password": pwd}, timeout=3)
+                respons = requests.post(url_cek, json={"password": pwd}, timeout=5)
                 data = respons.json()
                 if data.get("status") == "sukses":
                     self.boleh_tutup = True 
@@ -964,8 +1019,21 @@ class SiswaApp(QMainWindow):
         if self.w_utama.currentIndex() == 2: self.timer_anti_cheat.start(500)
         self.is_dialog_open = False
 
+from updater import cek_dan_update_otomatis
+
+VERSI_SISWA = "1.0.1"
+
 if __name__ == '__main__':
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("smaid.exambrowser.siswa")
+
+    # 1. NYALAKAN QApplication TERLEBIH DAHULU (wajib paling atas)
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon(dapatkan_path_file("logo.jpg")))
+
+    # 2. BARU JALANKAN CEK UPDATE (sekarang JendelaLoadingUpdate aman dibuat)
+    cek_dan_update_otomatis("siswa", VERSI_SISWA)
+
+    # 3. BUKA JENDELA UTAMA
     window = SiswaApp()
     window.show()
     sys.exit(app.exec())
