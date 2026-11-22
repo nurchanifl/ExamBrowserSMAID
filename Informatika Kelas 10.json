@@ -1,0 +1,596 @@
+{
+    "proctor_password": "1",
+    "paket_ujian": {
+        "paket_1": {
+            "mapel": "Informatika",
+            "kelas": "10",
+            "token": "1",
+            "aktif": false,
+            "soal": [
+                {
+                    "id": 1,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Panitia pentas seni (Pensi) sekolah kewalahan menyiapkan acara karena semua anggota bekerja tanpa pembagian tugas yang jelas. Ketua panitia kemudian memutuskan untuk langsung membuat jadwal harian yang kaku tanpa memetakan sub-pekerjaan terlebih dahulu, serta membuang informasi mengenai batas kapasitas listrik aula dengan alasan \"menyederhanakan masalah agar tidak pusing\". Akibatnya, saat hari pelaksanaan, panggung mengalami mati listrik total dan beberapa bagian acara tidak ada penanggung jawabnya.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Berdasarkan analisis empat fondasi Berpikir Komputasional, dua kesalahan fatal yang dilakukan oleh ketua panitia tersebut secara berurutan adalah...</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Gagal melakukan pengenalan pola dan keliru dalam menerapkan algoritma pengurutan.",
+                        "B": "Tidak menerapkan dekomposisi sebelum menyusun algoritma dan salah melakukan abstraksi dengan membuang batasan penting.",
+                        "C": "Terlalu fokus pada dekomposisi teknis dan mengabaikan pencarian data historis acara sebelumnya.",
+                        "D": "Keliru dalam menyusun abstraksi karena mempertahankan detail yang tidak relevan dan berlebihan dalam dekomposisi.",
+                        "E": "Tidak menerapkan pengenalan pola anggaran dan terlalu lambat mengeksekusi algoritma harian."
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 2,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Seorang analis data menguji efisiensi pergerakan elemen pada dua algoritma pengurutan dasar dengan menggunakan deretan data acak: (40, 20, 50, 30, 10) yang akan diurutkan dari terkecil ke terbesar. Pada Insertion Sort, setiap pergeseran elemen ke kanan dihitung sebagai 1 kali perpindahan (shift). Pada Selection Sort, setiap pertukaran posisi dua angka berbeda dihitung sebagai 1 kali pertukaran (swap).</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Perbandingan jumlah total perpindahan (shift) pada Insertion Sort dengan jumlah pertukaran (swap) dua angka berbeda pada Selection Sort hingga seluruh data terurut adalah...</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Insertion Sort melakukan 7 kali shift, sedangkan Selection Sort melakukan 3 kali swap.",
+                        "B": "Insertion Sort melakukan 6 kali shift, sedangkan Selection Sort melakukan 4 kali swap.",
+                        "C": "Insertion Sort melakukan 7 kali shift, sedangkan Selection Sort melakukan 4 kali swap.",
+                        "D": "Insertion Sort melakukan 5 kali shift, sedangkan Selection Sort melakukan 3 kali swap.",
+                        "E": "Keduanya sama-sama melakukan 4 kali perpindahan/pertukaran posisi elemen."
+                    },
+                    "kunci": "A"
+                },
+                {
+                    "id": 3,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Dita sedang melacak proses pengurutan 5 buah bilangan menggunakan algoritma Insertion Sort secara menaik (dari terkecil ke terbesar). Pada catatan kerjanya, Dita mendapati bahwa tepat setelah Iterasi 2 selesai dijalankan, susunan deretan angka tersebut menjadi: (42, 68, 85), 30, 55.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Manakah di antara susunan data awal berikut ini yang TIDAK MUNGKIN menjadi data awal sebelum Iterasi 1 dijalankan?</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "(85, 68, 42, 30, 55)",
+                        "B": "(68, 85, 42, 30, 55)",
+                        "C": "(42, 30, 85, 68, 55)",
+                        "D": "(42, 85, 68, 30, 55)",
+                        "E": "(68, 42, 85, 30, 55)"
+                    },
+                    "kunci": "C"
+                },
+                {
+                    "id": 4,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Dalam suatu kompetisi seleksi atlet, panitia ingin mengurutkan skor 5 peserta dari yang tertinggi ke terendah (menurun) menggunakan metode Insertion Sort. Data skor awal yang tercatat adalah: (45, 70, 30, 85, 60).</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Ketika algoritma memasuki Iterasi 3 (memproses elemen keempat yaitu angka 85), berapa kali pergeseran angka ke kanan yang terjadi dan bagaimana susunan deretan skor tepat setelah Iterasi 3 selesai?</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Terjadi 2 kali pergeseran; susunan menjadi (85, 70, 45), 30, 60.",
+                        "B": "Terjadi 3 kali pergeseran; susunan menjadi (85, 70, 45, 30), 60.",
+                        "C": "Terjadi 3 kali pergeseran; susunan menjadi (85, 70, 60, 45), 30.",
+                        "D": "Terjadi 1 kali pergeseran; susunan menjadi (70, 85, 45, 30), 60.",
+                        "E": "Tidak terjadi pergeseran; susunan menjadi (70, 45, 30, 85), 60."
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 5,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Diberikan deretan data acak (64, 25, 12, 22, 11) yang diurutkan dari nilai terkecil ke terbesar menggunakan metode Selection Sort. Pada setiap iterasi, sistem mencari nilai terkecil pada kelompok yang belum terurut dan menukarnya dengan elemen pertama pada kelompok belum terurut tersebut.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Pasangan angka yang saling bertukar posisi pada Iterasi 3 serta susunan lengkap deretan angka tepat setelah Iterasi 3 selesai adalah...</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Angka 25 bertukar dengan 12; susunan menjadi (11, 12, 25), 22, 64.",
+                        "B": "Angka 25 bertukar dengan 22; susunan menjadi (11, 12, 22), 25, 64.",
+                        "C": "Angka 64 bertukar dengan 22; susunan menjadi (11, 12, 22), 64, 25.",
+                        "D": "Angka 22 bertukar dengan 64; susunan menjadi (11, 12, 22, 25), 64.",
+                        "E": "Tidak terjadi pertukaran; susunan tetap (11, 12, 22), 25, 64."
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 6,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Rian melakukan pengurutan 5 angka berbeda dari terkecil ke terbesar menggunakan algoritma Selection Sort. Ia memastikan bahwa baik pada Iterasi 1 maupun pada Iterasi 2, benar-benar terjadi pertukaran posisi antara dua angka yang berbeda (bukan menukar angka dengan posisinya sendiri). Setelah Iterasi 2 selesai, susunan deretan angka menjadi (10, 20), 50, 40, 30.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Berdasarkan kondisi tersebut, susunan deretan angka awal sebelum Iterasi 1 dijalankan adalah...</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "(10, 20, 50, 40, 30)",
+                        "B": "(10, 30, 50, 40, 20)",
+                        "C": "(20, 10, 50, 40, 30)",
+                        "D": "(30, 10, 50, 40, 20)",
+                        "E": "(50, 20, 30, 40, 10)"
+                    },
+                    "kunci": "D"
+                },
+                {
+                    "id": 7,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Dalam simulasi struktur data Stack (Tumpukan), perintah Push X menambahkan bilangan bulat X ke puncak tumpukan, sedangkan perintah Pop mengambil dan mengeluarkan bilangan di puncak tumpukan. Apabila tumpukan sedang dalam keadaan kosong, perintah Pop tidak memberikan efek apa pun (diabaikan). Sebuah Stack awalnya kosong dan menerima rangkaian 10 perintah berikut secara berurutan: Push 14 -> Push 27 -> Pop -> Pop -> Pop -> Push 33 -> Push 19 -> Pop -> Push 42 -> Pop.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Berapakah jumlah total dari seluruh angka yang berhasil dikeluarkan oleh perintah Pop serta angka apa yang tersisa di dalam Stack setelah seluruh perintah selesai?</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Total angka keluar = 102; tersisa angka 33 di dalam Stack.",
+                        "B": "Total angka keluar = 102; Stack berakhir dalam keadaan kosong.",
+                        "C": "Total angka keluar = 88; tersisa angka 14 dan 33 di dalam Stack.",
+                        "D": "Total angka keluar = 135; tersisa angka 42 di dalam Stack.",
+                        "E": "Total angka keluar = 60; tersisa angka 27 dan 33 di dalam Stack."
+                    },
+                    "kunci": "A"
+                },
+                {
+                    "id": 8,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Aplikasi browser menyimpan riwayat navigasi menggunakan prinsip Stack (LIFO). Setiap kali pengguna membuka tautan halaman baru, halaman sebelumnya dimasukkan ke tumpukan Back, sedangkan riwayat pada tumpukan Forward akan otomatis terhapus bersih. Dika membuka halaman secara berurutan: Home -> Berita -> Olahraga -> Teknologi. Kemudian Dika menekan tombol Back sebanyak 2 kali, lalu mengklik tautan halaman Sains, menekan Back 1 kali, dan terakhir menekan Forward 1 kali.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Halaman manakah yang sedang tampil di layar Dika pada akhir rangkaian navigasi tersebut, dan apa isi tumpukan Back dari posisi terbawah hingga teratas?</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Halaman Olahraga; tumpukan Back berisi Home, Berita.",
+                        "B": "Halaman Sains; tumpukan Back berisi Home, Berita.",
+                        "C": "Halaman Teknologi; tumpukan Back berisi Home, Berita, Olahraga.",
+                        "D": "Halaman Sains; tumpukan Back berisi Home, Berita, Olahraga.",
+                        "E": "Halaman Berita; tumpukan Back berisi Home."
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 9,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Loket pendaftaran klinik menggunakan sistem antrean Queue (FIFO). Jika seorang pasien yang dipanggil (Dequeue) ternyata memiliki berkas yang belum lengkap, petugas akan langsung memasukkannya kembali ke barisan paling belakang (Enqueue) setelah pasien melengkapi berkasnya di tempat. Awalnya, antrean berisi pasien A, B, C (dengan A di posisi terdepan). Urutan kejadian berikutnya adalah: (1) A dipanggil dan berkasnya lengkap (selesai); (2) Pasien D datang mendaftar; (3) B dipanggil, namun berkasnya kurang sehingga langsung masuk kembali ke ekor antrean; (4) C dipanggil dan berkasnya lengkap (selesai); (5) Pasien E datang mendaftar; (6) Pasien terdepan saat ini dipanggil dan berkasnya lengkap (selesai).</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Siapakah pasien yang berada pada posisi terdepan di dalam antrean tepat setelah kejadian ke-6 selesai?</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Pasien B",
+                        "B": "Pasien C",
+                        "C": "Pasien D",
+                        "D": "Pasien E",
+                        "E": "Antrean dalam keadaan kosong"
+                    },
+                    "kunci": "A"
+                },
+                {
+                    "id": 10,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Sebuah sistem pemrosesan paket data menggabungkan dua struktur data berbeda secara berantai. Pertama, empat paket data bernomor dimasukkan ke dalam Queue Q secara berurutan: Enqueue 5, Enqueue 12, Enqueue 8, Enqueue 20. Selanjutnya, seluruh isi Queue Q dikeluarkan satu per satu (Dequeue) dan langsung dimasukkan (Push) ke dalam Stack S yang awalnya kosong. Terakhir, dilakukan perintah Pop sebanyak dua kali pada Stack S.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Urutan angka yang masih tersisa di dalam Stack S dari posisi paling bawah hingga paling atas setelah proses tersebut berakhir adalah...</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "8 (bawah), 20 (atas)",
+                        "B": "20 (bawah), 8 (atas)",
+                        "C": "5 (bawah), 12 (atas)",
+                        "D": "12 (bawah), 5 (atas)",
+                        "E": "5 (bawah), 20 (atas)"
+                    },
+                    "kunci": "C"
+                },
+                {
+                    "id": 11,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Seorang pengembang perangkat lunak melakukan kesalahan arsitektur sistem: ia menerapkan struktur data Stack (LIFO) untuk mengelola antrean cetak dokumen (Print Spooler) pada printer jaringan kantor, serta menerapkan struktur data Queue (FIFO) untuk fitur pembatalan tindakan (Undo) pada aplikasi pengolah dokumen.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Evaluasi dampak yang paling akurat dan pasti terjadi akibat kesalahan pemilihan kedua struktur data tersebut adalah...</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Dokumen cetak pertama akan selalu diprioritaskan, sedangkan tombol Undo akan menghapus seluruh isi dokumen sekaligus.",
+                        "B": "Dokumen cetak yang dikirim pertama berisiko tertunda terus-menerus jika ada kiriman baru, sedangkan tombol Undo justru membatalkan tindakan paling awal yang dibuat pengguna.",
+                        "C": "Mesin printer akan mencetak semua dokumen secara bersamaan, sedangkan tombol Undo tidak dapat berfungsi sebelum dokumen disimpan.",
+                        "D": "Dokumen cetak terakhir akan ditolak oleh printer, sedangkan tombol Undo hanya membatalkan tindakan terakhir secara berulang.",
+                        "E": "Kedua sistem tetap berjalan normal karena prinsip LIFO dan FIFO memiliki urutan keluaran yang identik pada data digital."
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 12,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Sebuah toko daring memiliki 20.000 koleksi pakaian dengan rincian: 50% berjenis Kaus, 30% Kemeja, dan 20% Jaket. Dari seluruh jaket tersebut, hanya 25% yang berwarna hitam, dan dari jaket hitam tersebut hanya 10% yang berukuran XL. Fajar ingin membeli sebuah jaket hitam berukuran XL dengan harga termurah.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Strategi pencarian (searching) berbasis Berpikir Komputasional yang paling efisien untuk mempersempit ruang pencarian dan menemukan barang yang diinginkan Fajar dalam langkah paling minimal adalah...</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Mengetik kata kunci \"Pakaian\" lalu mengurutkan seluruh 20.000 produk dari harga termurah.",
+                        "B": "Menerapkan Filter bertingkat (Kategori: Jaket, Warna: Hitam, Ukuran: XL) terlebih dahulu sehingga ruang pencarian menyusut menjadi 100 item, lalu mengurutkannya berdasarkan harga terendah.",
+                        "C": "Mengurutkan seluruh katalog berdasarkan ukuran XL terlebih dahulu, lalu memeriksa satu per satu jenis pakaian dan warnanya secara manual.",
+                        "D": "Menggunakan kata kunci \"Jaket Murah\" tanpa filter warna dan ukuran agar sistem menampilkan semua variasi produk terlebih dahulu.",
+                        "E": "Membuka halaman toko satu per satu berdasarkan abjad nama penjual sambil mencatat harga jaket secara manual."
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 13,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Dalam sebuah gim pertarungan, seorang boss musuh memiliki pola serangan yang berubah tergantung sisa energinya (HP). Saat HP di atas 50%, boss mengulang siklus 5 gerakan: (Serang Biasa, Serang Biasa, Melompat, Jurus Area, Istirahat). Begitu HP turun di bawah 50%, siklusnya langsung diulang dari awal dengan pola baru berisi 4 gerakan tanpa istirahat: (Serang Biasa, Serang Biasa, Melompat, Jurus Area). Pemain mengetahui bahwa setiap kali boss melakukan gerakan Melompat, serangan berikutnya pasti berupa Jurus Area yang harus dihindari dengan tombol Dodge.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Jika boss memulai pertarungan dengan HP penuh, lalu HP-nya turun di bawah 50% tepat setelah menyelesaikan gerakan ke-7, tindakan apa yang harus dilakukan pemain pada gerakan ke-11 dan mengapa?</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Menyerang balik, karena gerakan ke-11 adalah fase Istirahat pada siklus pertama.",
+                        "B": "Menekan tombol Dodge, karena gerakan ke-10 adalah Melompat sehingga gerakan ke-11 pasti Jurus Area.",
+                        "C": "Bertahan biasa, karena gerakan ke-11 merupakan pengulangan Serang Biasa pertama pada siklus kedua.",
+                        "D": "Menekan tombol Dodge, karena gerakan ke-11 adalah Melompat yang akan langsung memberikan kerusakan besar.",
+                        "E": "Mengisi ulang energi, karena gerakan ke-11 berada di luar pola serangan terstruktur boss."
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 14,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Rina membuat algoritma otomatis untuk rutinitas perawatan kulit (skincare) pagi hari: (1) Oleskan sunscreen secara merata; (2) Bersihkan wajah dengan cleanser dan bilas dengan air; (3) Aplikasikan toner dan serum; (4) Gunakan moisturizer (pelembap). Selain itu, Rina memasukkan langkah \"memilih warna tas yang cocok dengan baju\" di antara langkah ke-3 dan ke-4.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Berdasarkan prinsip Algoritma dan Abstraksi dalam Berpikir Komputasional, evaluasi yang paling tepat terhadap rancangan Rina adalah...</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Algoritma sudah logis dan efisien karena semua kebutuhan pagi hari telah digabungkan dalam satu urutan kerja.",
+                        "B": "Terdapat kesalahan urutan logika pada langkah 1 yang menyebabkan produk sebelumnya terbilas air di langkah 2, serta kegagalan abstraksi karena memasukkan aktivitas yang tidak relevan dengan perawatan kulit.",
+                        "C": "Langkah 1 dan 2 sudah benar secara algoritma, namun kegagalan dekomposisi menyebabkan moisturizer tidak dapat menyerap sempurna.",
+                        "D": "Masalah utama terletak pada kurangnya pengenalan pola jenis kulit, sedangkan penyisipan aktivitas memilih tas merupakan bentuk abstraksi yang baik.",
+                        "E": "Algoritma Rina menerapkan prinsip Queue (FIFO) sehingga sunscreen yang dioleskan pertama tetap bertahan hingga langkah terakhir."
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 15,
+                    "tipe": "PG",
+                    "bobot": 2.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Dua siswa berdebat mengenai algoritma pengurutan mana yang lebih hemat kerja ketika dihadapkan pada data yang ternyata sudah terurut sempurna dari awal, yaitu (10, 20, 30, 40, 50). Siswa X berpendapat Insertion Sort jauh lebih cepat, sedangkan Siswa Y berpendapat Selection Sort sama saja kecepatannya karena jumlah iterasinya sama-sama 4 kali.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Berdasarkan mekanisme pembandingan dan penempatan kedua algoritma tersebut, analisis manakah yang paling tepat untuk membuktikan siapa yang benar?</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "opsi": {
+                        "A": "Siswa Y benar, karena baik Insertion Sort maupun Selection Sort sama-sama melakukan 10 kali pembandingan dan 0 kali perpindahan pada data terurut.",
+                        "B": "Siswa X benar, karena Insertion Sort hanya melakukan 4 kali pembandingan (1 kali per iterasi) dan 0 kali pergeseran, sedangkan Selection Sort tetap harus memindai sisa elemen sebanyak 10 kali pembandingan untuk memastikan nilai terkecil.",
+                        "C": "Siswa X benar, karena Insertion Sort hanya membutuhkan 1 kali iterasi untuk mendeteksi data terurut, sedangkan Selection Sort membutuhkan 4 kali iterasi.",
+                        "D": "Siswa Y benar, karena Selection Sort langsung berhenti pada iterasi pertama setelah menemukan bahwa angka 10 sudah berada di posisi paling kiri.",
+                        "E": "Keduanya salah, karena data yang sudah terurut tidak dapat diproses menggunakan Insertion Sort maupun Selection Sort."
+                    },
+                    "kunci": "B"
+                },
+                {
+                    "id": 16,
+                    "tipe": "PGK",
+                    "bobot": 3.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Sekolah ingin membangun sistem digital untuk mengelola pembagian ruang ujian dan pengawasan otomatis bagi 600 siswa kelas X. Tim pengembang merancang sistem dengan memecah proyek menjadi modul data siswa, modul denah ruang, dan modul penjadwalan pengawas. Dalam modul penjadwalan, sistem hanya mengambil data NIS, kelas, dan mata pelajaran yang diujikan, sementara data hobi, alamat rumah, dan tinggi badan siswa diabaikan. Tim juga menggunakan kembali pola aturan larangan satu ruangan bagi siswa sekelas yang pernah sukses diterapkan pada ujian tahun lalu.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Berdasarkan wacana penerapan Berpikir Komputasional tersebut, tentukan pernyataan yang BENAR atau SALAH di bawah ini!</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Pembagian proyek menjadi modul data siswa, modul denah ruang, dan modul penjadwalan pengawas merupakan penerapan fondasi Dekomposisi. ",
+                        "Mengabaikan data hobi, alamat rumah, dan tinggi badan siswa dalam proses penjadwalan ujian merupakan penerapan fondasi Abstraksi. ",
+                        "Menggunakan kembali aturan pengacakan tempat duduk dari ujian tahun sebelumnya merupakan bentuk penerapan fondasi Algoritma. ",
+                        "Jika tim pengembang memasukkan warna sepatu siswa sebagai syarat penentuan nomor meja ujian, maka hal tersebut akan meningkatkan kualitas Abstraksi sistem. ",
+                        "Menyusun langkah sistematis mulai dari mengimpor data siswa, memfilter kelas, hingga mencetak kartu meja ujian merupakan penerapan fondasi Algoritma. "
+                    ],
+                    "kunci": [
+                        0,
+                        1,
+                        4
+                    ]
+                },
+                {
+                    "id": 17,
+                    "tipe": "PGK",
+                    "bobot": 3.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Diberikan deretan 5 bilangan yang tersusun terbalik (menurun sempurna): (50, 40, 30, 20, 10). Data tersebut akan diurutkan menjadi menaik (10, 20, 30, 40, 50) dengan membandingkan jalannya algoritma Insertion Sort dan Selection Sort.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Evaluasi pernyataan mengenai perbandingan proses pengurutan kedua algoritma pada data terbalik tersebut. Manakah yang bernilai BENAR?</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Pada Insertion Sort, setelah Iterasi 2 selesai dijalankan, susunan deretan angka menjadi (30, 40, 50), 20, 10. ",
+                        "Pada Selection Sort, setelah Iterasi 2 selesai dijalankan, susunan deretan angka menjadi Terurut (10, 20) | Belum terurut (30, 40, 50). ",
+                        "Pada Selection Sort, masih terjadi pertukaran dua angka yang berbeda pada Iterasi 3 dan Iterasi 4 untuk menyelesaikan pengurutan. ",
+                        "Total pergeseran elemen ke kanan pada Insertion Sort dari Iterasi 1 hingga Iterasi 4 berjumlah 10 kali pergeseran. ",
+                        "Jumlah iterasi keseluruhan yang dibutuhkan Insertion Sort pada data terbalik ini lebih banyak dibandingkan Selection Sort. "
+                    ],
+                    "kunci": [
+                        0,
+                        1,
+                        3
+                    ]
+                },
+                {
+                    "id": 18,
+                    "tipe": "PGK",
+                    "bobot": 3.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Sebuah struktur data Stack (Tumpukan) yang mula-mula kosong diberikan rangkaian 10 perintah simulasi secara berurutan sebagai berikut: Push 8 -> Push 3 -> Pop -> Push 12 -> Push 5 -> Pop -> Pop -> Pop -> Push 9 -> Pop. Ingat bahwa jika Stack dalam kondisi kosong, perintah Pop tidak menghasilkan keluaran apa pun.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Dari hasil pelacakan simulasi Stack di atas, manakah pernyataan-pernyataan berikut yang bernilai BENAR?</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Total banyaknya bilangan yang berhasil dikeluarkan oleh perintah Pop dari awal hingga akhir simulasi adalah 5 bilangan. ",
+                        "Urutan bilangan yang dikeluarkan oleh perintah Pop secara berturut-turut adalah 3, 5, 12, 8, 9. ",
+                        "Perintah Pop yang ke-4 dalam rangkaian perintah di atas mengeluarkan angka 8, sedangkan perintah Pop ke-5 mengeluarkan angka 9. ",
+                        "Setelah perintah ke-10 (Pop terakhir) selesai dijalankan, Stack berakhir dalam keadaan kosong melompong. ",
+                        "Jika setelah perintah ke-10 ditambahkan perintah Push 20 dan Push 25, maka elemen puncak (top) yang akan keluar pertama kali saat di-Pop adalah 20. "
+                    ],
+                    "kunci": [
+                        0,
+                        1,
+                        3
+                    ]
+                },
+                {
+                    "id": 19,
+                    "tipe": "PGK",
+                    "bobot": 3.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Satu unit printer jaringan di ruang guru terhubung ke empat komputer (PC-1, PC-2, PC-3, PC-4) dan bekerja menggunakan struktur data Queue (FIFO). Printer membutuhkan waktu tepat 1 menit untuk mencetak setiap 2 halaman. Pada pukul 08.00, masuk perintah cetak hampir bersamaan dengan urutan kedatangan: (1) PC-1 mengirim dokumen 6 halaman; (2) PC-2 mengirim dokumen 4 halaman; (3) PC-3 mengirim dokumen 10 halaman; (4) PC-4 mengirim dokumen 2 halaman. Tepat pada pukul 08.03, pengguna PC-3 membatalkan (cancel) antrean cetaknya sebelum dokumennya sempat mulai dicetak oleh printer.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Berdasarkan analisis prinsip Queue pada skenario pencetakan di atas, manakah pernyataan yang bernilai BENAR?</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Dokumen milik PC-1 selesai dicetak tepat pada pukul 08.03, dan detik itu juga printer langsung memproses dokumen milik PC-2. ",
+                        "Pembatalan dokumen oleh PC-3 pada pukul 08.03 membuat dokumen milik PC-4 maju antreannya dan selesai dicetak pada pukul 08.06. ",
+                        "Jika PC-3 tidak membatalkan cetakannya, maka PC-4 baru akan selesai mencetak seluruh dokumennya pada pukul 08.11. ",
+                        "Meskipun PC-4 hanya mencetak 2 halaman, dalam sistem Queue murni ia tetap tidak boleh mendahului PC-2 yang datang lebih awal. ",
+                        "Apabila printer tersebut diubah menjadi sistem Stack (LIFO) pada pukul 08.00, maka dokumen PC-1 akan selesai dicetak paling awal sebelum PC-4. "
+                    ],
+                    "kunci": [
+                        0,
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                {
+                    "id": 20,
+                    "tipe": "PGK",
+                    "bobot": 3.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Dalam mengelola basis data perpustakaan sekolah yang berisi 15.000 buku, pustakawan sering melakukan kombinasi operasi pencarian (searching) dan pengurutan (sorting). Suatu ketika, pustakawan ingin menemukan seluruh buku bertema \"Pemrograman Python\" terbitan tahun 2024 ke atas, lalu menyusun daftar hasil temuan tersebut dari harga termurah ke termahal.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Evaluasi pernyataan-pernyataan berikut terkait strategi komputasional pustakawan tersebut. Manakah yang bernilai BENAR?</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Melakukan searching (filtering) berdasarkan topik dan tahun terbit terlebih dahulu sebelum melakukan sorting harga jauh lebih efisien daripada mengurutkan 15.000 buku terlebih dahulu. ",
+                        "Ketika pustakawan mengabaikan warna sampul buku dan nama penerbit saat mencari topik \"Pemrograman Python\", ia sedang menerapkan prinsip Abstraksi. ",
+                        "Proses pencarian (searching) bertujuan mengubah posisi fisik seluruh buku di rak agar berurutan berdasarkan abjad judul. ",
+                        "Jika hasil filter menyisakan 5 buku dengan harga acak, baik Insertion Sort maupun Selection Sort akan membutuhkan tepat 4 kali iterasi untuk mengurutkannya. ",
+                        "Pencarian tidak efisien terjadi apabila pustakawan langsung mengetikkan ISBN spesifik buku yang dicari pada kolom pencarian katalog digital. "
+                    ],
+                    "kunci": [
+                        0,
+                        1,
+                        3
+                    ]
+                },
+                {
+                    "id": 21,
+                    "tipe": "BS",
+                    "bobot": 3.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Diberikan sebuah deretan bilangan acak (35, 60, 25, 75, 50) yang akan diurutkan dari nilai terbesar ke terkecil (menurun) menggunakan metode Insertion Sort (Pengurutan Sisip).</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Tentukan Benar (B) atau Salah (S) dari pernyataan-pernyataan pelacakan iterasi Insertion Sort menurun di bawah ini!</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Pada Iterasi 1, angka 60 dibandingkan dengan 35 dan disisipkan ke depan sehingga susunannya menjadi (60, 35), 25, 75, 50. ",
+                        "Pada Iterasi 2, angka 25 dibandingkan dengan 35 dan harus digeser ke posisi paling depan karena merupakan bilangan ganjil terkecil. ",
+                        "Pada Iterasi 3, angka 75 dibandingkan dengan 25, 35, dan 60 (terjadi 3 kali pergeseran ke kanan), menghasilkan susunan (75, 60, 35, 25), 50. ",
+                        "Pada Iterasi 4, angka 50 disisipkan tepat di antara angka 60 dan 35 sehingga susunan akhir menjadi (75, 60, 50, 35, 25). "
+                    ],
+                    "kunci": [
+                        "B",
+                        "S",
+                        "B",
+                        "B"
+                    ]
+                },
+                {
+                    "id": 22,
+                    "tipe": "BS",
+                    "bobot": 3.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Panitia lomba mengurutkan 5 skor peserta (40, 15, 30, 15, 25) dari yang terkecil ke terbesar (menaik) menggunakan algoritma Selection Sort (Pengurutan Seleksi). Apabila terdapat dua nilai terkecil yang sama pada kelompok belum terurut, sistem memilih elemen yang berada pada posisi paling kiri terlebih dahulu.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Analisislah kebenaran dari masing-masing pernyataan mengenai jalannya algoritma Selection Sort pada data tersebut!</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Pada Iterasi 1, angka 15 pada posisi kedua bertukar dengan angka 40 pada posisi pertama, menghasilkan susunan Terurut (15) | Belum terurut (40, 30, 15, 25). ",
+                        "Pada Iterasi 2, tidak terjadi pertukaran posisi apa pun karena angka terkecil berikutnya (15) sudah berada tepat di sebelah angka 15 pertama. ",
+                        "Pada Iterasi 3, angka 30 bertukar posisi dengan angka 25 sehingga susunan menjadi Terurut (15, 15, 25) | Belum terurut (40, 30). ",
+                        "Setelah Iterasi 4 selesai, angka 40 dan 30 saling bertukar posisi dan menghasilkan urutan akhir (15, 15, 25, 30, 40). "
+                    ],
+                    "kunci": [
+                        "B",
+                        "S",
+                        "B",
+                        "B"
+                    ]
+                },
+                {
+                    "id": 23,
+                    "tipe": "BS",
+                    "bobot": 3.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Nisa membuka browser web yang awalnya berada di halaman Home. Ia kemudian mengeklik tautan menuju Profil, lalu Berita, lalu Galeri. Setelah itu, Nisa menekan tombol Back sebanyak 2 kali, mengeklik tautan baru menuju Kontak, menekan tombol Back 1 kali, dan terakhir menekan tombol Forward 1 kali.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Nyatakan Benar (B) atau Salah (S) dari kondisi riwayat navigasi browser Nisa berdasarkan prinsip Stack berikut ini!</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Tepat setelah menekan tombol Back sebanyak 2 kali dari halaman Galeri, halaman yang sedang terbuka di layar Nisa adalah Profil. ",
+                        "Ketika Nisa mengeklik tautan menuju Kontak, halaman Berita dan Galeri tetap tersimpan di dalam tumpukan tombol Forward. ",
+                        "Setelah rangkaian seluruh navigasi selesai, halaman yang tampil di layar Nisa adalah Kontak dan tombol Forward dalam keadaan nonaktif (kosong). ",
+                        "Pada akhir navigasi, isi tumpukan tombol Back dari urutan teratas ke terbawah adalah Profil kemudian Home. "
+                    ],
+                    "kunci": [
+                        "B",
+                        "S",
+                        "B",
+                        "B"
+                    ]
+                },
+                {
+                    "id": 24,
+                    "tipe": "BS",
+                    "bobot": 3.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Sebuah eksperimen transfer data melibatkan tiga struktur data yang awalnya kosong: Queue A, Stack B, dan Queue C. Langkah-langkah yang dijalankan secara berurutan adalah: (1) Masukkan angka 10, 20, 30, 40 secara berurutan ke dalam Queue A (Enqueue); (2) Keluarkan 3 angka dari Queue A (Dequeue) dan langsung masukkan ke dalam Stack B (Push); (3) Keluarkan 2 angka dari Stack B (Pop) dan langsung masukkan ke dalam Queue C (Enqueue); (4) Keluarkan 1 angka yang tersisa di Queue A (Dequeue) dan masukkan ke dalam Queue C (Enqueue); (5) Keluarkan 1 angka yang tersisa di Stack B (Pop) dan masukkan ke dalam Queue C (Enqueue).</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Tentukan Benar (B) atau Salah (S) dari hasil eksperimen struktur data di atas!</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Setelah langkah ke-2 selesai, angka yang berada pada puncak (top) Stack B adalah 30, sedangkan angka 40 masih berada di Queue A. ",
+                        "Pada langkah ke-3, dua angka yang masuk ke dalam Queue C secara berurutan adalah 10 terlebih dahulu, baru kemudian 20. ",
+                        "Setelah langkah ke-5 selesai, urutan isi Queue C dari posisi paling depan (front) hingga paling belakang (rear) adalah 30, 20, 40, 10. ",
+                        "Jika setelah langkah ke-5 dilakukan perintah Dequeue pada Queue C, maka angka yang keluar pertama kali adalah 10. "
+                    ],
+                    "kunci": [
+                        "B",
+                        "S",
+                        "B",
+                        "S"
+                    ]
+                },
+                {
+                    "id": 25,
+                    "tipe": "BS",
+                    "bobot": 3.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Dalam penerapan Berpikir Komputasional di kehidupan nyata maupun komputasi, sering kali terjadi kerancuan konsep antara empat fondasi utama, pencarian, pengurutan, serta struktur data Stack dan Queue.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Evaluasilah kebenaran dari pernyataan-pernyataan konseptual di bawah ini!</p>",
+                    "gambar": "",
+                    "sumber_gambar": "",
+                    "pernyataan": [
+                        "Abstraksi dan Dekomposisi memiliki fungsi yang sama persis, yaitu sama-sama membuang bagian masalah yang dianggap sulit dikerjakan. ",
+                        "Proses sorting mempermudah proses searching berikutnya karena data yang sudah terstruktur memiliki pola keteraturan nilai yang jelas. ",
+                        "Prinsip Queue (FIFO) digunakan pada sistem Undo/Redo aplikasi pengolah kata karena perubahan paling awal harus dibatalkan terlebih dahulu. ",
+                        "Algoritma Selection Sort selalu melakukan maksimal 1 kali pertukaran elemen pada setiap iterasinya, berapa pun jumlah total data yang diurutkan. "
+                    ],
+                    "kunci": [
+                        "S",
+                        "B",
+                        "S",
+                        "B"
+                    ]
+                },
+                {
+                    "id": 26,
+                    "tipe": "ESSAY",
+                    "bobot": 8.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Sebuah sistem pemeringkatan otomatis menerima 5 data skor peserta seleksi olimpiade secara acak: (90, 40, 70, 30, 60). Tim pengembang ingin mengurutkan skor tersebut dari nilai terkecil ke terbesar (menaik) dan harus memilih antara algoritma Insertion Sort atau Selection Sort berdasarkan jumlah perpindahan/pertukaran elemen paling sedikit pada kasus data ini.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Tuliskan pelacakan lengkap langkah demi langkah (Iterasi 1 hingga Iterasi 4) untuk kedua algoritma tersebut pada data (90, 40, 70, 30, 60)! Kemudian, hitung dan bandingkan total pergeseran elemen (shift) pada Insertion Sort versus total pertukaran dua elemen berbeda (swap) pada Selection Sort untuk membuktikan algoritma mana yang lebih hemat perpindahan data pada kasus tersebut!</p>",
+                    "gambar": "",
+                    "sumber_gambar": ""
+                },
+                {
+                    "id": 27,
+                    "tipe": "ESSAY",
+                    "bobot": 8.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Sebuah klinik kesehatan merancang sistem administrasi pasien menggunakan dua wadah data: Antrean Utama (Queue - FIFO) untuk menampung pasien yang baru datang, dan Tumpukan Berkas Bermasalah (Stack - LIFO) untuk menampung berkas pasien yang ditunda karena kartu identitasnya tertinggal dan baru disusulkan kemudian. Aturannya, setiap kali loket utama sedang jeda (tidak memanggil pasien baru), petugas akan memproses 1 berkas dari puncak Stack berkas bermasalah. Awalnya, Queue berisi pasien P1, P2, P3, P4 (dari depan ke belakang) dan Stack kosong. Simulasikan kejadian berurutan berikut: (1) P1 dipanggil dari Queue, berkas bermasalah -> masuk ke Stack; (2) P2 dipanggil dari Queue, berkas lengkap -> selesai dilayani; (3) P3 dipanggil dari Queue, berkas bermasalah -> masuk ke Stack; (4) Loket jeda -> petugas memproses 1 berkas dari Stack; (5) Pasien P5 datang mendaftar ke Queue; (6) P4 dipanggil dari Queue, berkas bermasalah -> masuk ke Stack; (7) Loket jeda -> petugas memproses 1 berkas dari Stack.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Tentukan isi Queue dan isi Stack (dari bawah ke atas) setelah langkah ke-7 selesai! Selanjutnya, analisislah kelemahan fatal (ketidakadilan layanan) yang dialami pasien P1 apabila mekanisme Stack tetap dipertahankan pada tumpukan berkas bermasalah!</p>",
+                    "gambar": "",
+                    "sumber_gambar": ""
+                },
+                {
+                    "id": 28,
+                    "tipe": "ESSAY",
+                    "bobot": 8.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Seorang siswa mengklaim bahwa ia sedang mengurutkan 5 buah bilangan berbeda dari terkecil ke terbesar (menaik) menggunakan metode Selection Sort. Ia menunjukkan catatan bahwa tepat setelah Iterasi 2 selesai, susunan kelima bilangan tersebut adalah (15, 25, 60, 45, 30), dan ia menegaskan bahwa pada Iterasi 1 maupun Iterasi 2 pasti terjadi pertukaran dua angka yang berbeda.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Rekonstruksi dan tuliskan minimal 2 (dua) kemungkinan susunan data awal sebelum Iterasi 1 dijalankan yang memenuhi seluruh klaim siswa tersebut! Kemudian, buktikan secara logis mengapa susunan awal (15, 25, 30, 45, 60) tidak mungkin menjadi data awal berdasarkan klaim siswa tersebut!</p>",
+                    "gambar": "",
+                    "sumber_gambar": ""
+                },
+                {
+                    "id": 29,
+                    "tipe": "ESSAY",
+                    "bobot": 8.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Waktu istirahat di kantin sekolah hanya berlangsung selama 15 menit, sehingga sering terjadi antrean panjang dan penumpukan pesanan yang membuat banyak siswa terlambat masuk jam pelajaran berikutnya. Tim IT OSIS diminta merancang solusi \"Sistem Pre-Order Kantin Digital\" agar siswa bisa memesan makanan sebelum jam istirahat dan mengambilnya dengan tertib saat istirahat tiba.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Rancanglah solusi komprehensif untuk sistem kantin tersebut dengan menjabarkan secara eksplisit penerapan keempat fondasi Berpikir Komputasional (Dekomposisi, Pengenalan Pola, Abstraksi, dan Algoritma)! Selain itu, tentukan struktur data apa (Queue, Stack, atau Sorting) yang paling tepat digunakan pada layar pemanggilan pesanan di dapur kantin beserta alasan komputasionalnya!</p>",
+                    "gambar": "",
+                    "sumber_gambar": ""
+                },
+                {
+                    "id": 30,
+                    "tipe": "ESSAY",
+                    "bobot": 8.0,
+                    "bacaan": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Sebuah aplikasi lokapasar (e-commerce) lokal memiliki 50.000 produk pakaian yang tersimpan secara acak. Saat ini, algoritma pencarian di dalam aplikasi tersebut bekerja dengan alur yang sangat lambat: setiap kali pengguna mengetikkan kata kunci pencarian, sistem terlebih dahulu mengurutkan seluruh 50.000 produk berdasarkan harga termurah menggunakan Selection Sort, baru kemudian menyaring (memfilter) kategori jaket, warna hitam, dan ukuran L, serta menampilkan seluruh deskripsi teknis kain di halaman hasil awal. Akibatnya, aplikasi sering mengalami hang (macet) selama belasan detik setiap kali pencarian dilakukan.</p>",
+                    "soal": "<p style=\"font-family:'Times New Roman'; font-size:12pt; margin: 0; text-align:left;\">Diagnosislah mengapa alur algoritma aplikasi tersebut sangat tidak efisien ditinjau dari konsep Pencarian (Searching), Pengurutan (Sorting), dan Abstraksi! Kemudian, susunlah ulang rancangan algoritma alur pencarian dan pengurutan yang baru agar aplikasi bekerja jauh lebih cepat dan ringan!</p>",
+                    "gambar": "",
+                    "sumber_gambar": ""
+                }
+            ]
+        }
+    },
+    "akun_siswa": {
+        "12": {
+            "nama": "Malikha Fauzia Ramadhani",
+            "kelas": "12",
+            "password": "12"
+        },
+        "13": {
+            "nama": "Mela Putri Fadilah",
+            "kelas": "12",
+            "password": "13"
+        },
+        "1": {
+            "nama": "Naila Annafi",
+            "kelas": "12",
+            "password": "1"
+        },
+        "2": {
+            "nama": "Isnaini Asih Triyana",
+            "kelas": "12",
+            "password": "2"
+        },
+        "3": {
+            "nama": "Syamsul Rizal Jaelani",
+            "kelas": "12",
+            "password": "3"
+        },
+        "4": {
+            "nama": "Najwa Aulia Azahra",
+            "kelas": "12",
+            "password": "4"
+        },
+        "5": {
+            "nama": "Haifa Humaira Putri Wardana",
+            "kelas": "12",
+            "password": "5"
+        },
+        "6": {
+            "nama": "Keysha Alfiansyah",
+            "kelas": "12",
+            "password": "6"
+        },
+        "7": {
+            "nama": "Kayana Tachiyyatul Zulfa",
+            "kelas": "12",
+            "password": "7"
+        },
+        "8": {
+            "nama": "Muhammad Faiz Nival Fahmi",
+            "kelas": "12",
+            "password": "8"
+        },
+        "9": {
+            "nama": "Kirani Laras Desvitasari",
+            "kelas": "12",
+            "password": "9"
+        },
+        "10": {
+            "nama": "Berlian Verdamara",
+            "kelas": "12",
+            "password": "10"
+        },
+        "11": {
+            "nama": "Nailul Fauziah",
+            "kelas": "12",
+            "password": "11"
+        },
+        "0": {
+            "nama": "uji coba",
+            "kelas": "1",
+            "password": "0"
+        }
+    }
+}
