@@ -135,14 +135,11 @@ class SiswaApp(QMainWindow):
         super().__init__()
         self.setWindowTitle("ExamBrowser Siswa - SMA Islam Darussalam")
         
-        ikon_path = dapatkan_path_file("logo.jpg")
+        ikon_path = dapatkan_path_file("logo.ico")
+        if not os.path.exists(ikon_path):
+            ikon_path = dapatkan_path_file("logo.jpg")
         if os.path.exists(ikon_path): 
             self.setWindowIcon(QIcon(ikon_path))
-            
-        try:
-            myappid = 'smaid.cbt.siswa.1.0'
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-        except: pass
         
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
         self.showFullScreen()
@@ -1028,7 +1025,10 @@ if __name__ == '__main__':
 
     # 1. NYALAKAN QApplication TERLEBIH DAHULU (wajib paling atas)
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon(dapatkan_path_file("logo.jpg")))
+    ikon_app = dapatkan_path_file("logo.ico")
+    if not os.path.exists(ikon_app):
+        ikon_app = dapatkan_path_file("logo.jpg")
+    app.setWindowIcon(QIcon(ikon_app))
 
     # 2. BARU JALANKAN CEK UPDATE (sekarang JendelaLoadingUpdate aman dibuat)
     cek_dan_update_otomatis("siswa", VERSI_SISWA)

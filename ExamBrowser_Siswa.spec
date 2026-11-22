@@ -5,7 +5,7 @@ a = Analysis(
     ['app_siswa.py'],
     pathex=[],
     binaries=[],
-    datas=[('logo.jpg', '.'), ('gif', 'gif')],
+    datas=[('logo.ico', '.'), ('logo.jpg', '.'), ('gif', 'gif')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
