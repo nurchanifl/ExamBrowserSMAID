@@ -1,10 +1,10 @@
 {
   "siswa": {
     "versi": "1.0.2",
-    "url_zip": "https://github.com/nurchanifl/ExamBrowserSMAID/releases/download/v1.0.2/ExamBrowser_Siswa_SMAID.zip"
+    "url_zip": "https://github.com/nurchanifl/ExamBrowserSMAID/releases/download/v1.0.3/ExamBrowser_Siswa_SMAID.zip"
   },
   "guru": {
     "versi": "1.0.2",
-    "url_zip": "https://github.com/nurchanifl/ExamBrowserSMAID/releases/download/v1.0.2/ExamBrowser_SMAID_Guru.zip"
+    "url_zip": "https://github.com/nurchanifl/ExamBrowserSMAID/releases/download/v1.0.3/ExamBrowser_SMAID_Guru.zip"
   }
 }
